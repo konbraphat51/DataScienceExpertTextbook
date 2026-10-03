@@ -544,11 +544,450 @@ $Q_1$ から $Q_3$ までを箱で、最小値と最大値までを線（ひげ�
 \section{確率の基本}
 \label{sec:stat-probability-basics}
 
-% TODO: 試行と事象、和事象・積事象・余事象
-% TODO: 確率の加法定理
-% TODO: 条件付き確率と乗法定理
-% TODO: 事象の独立
-% TODO: ベイズの定理（簡単な例：検査の陽性と病気の確率）
+統計は、データのばらつきを「偶然」として扱います。
+偶然を数学で扱う道具が確率です。
+この節では、高校数学 A で学んだ確率を、後で使いやすい形に整理します。
+
+\subsection{試行と事象}
+
+サイコロを投げるように、結果が偶然によって決まる実験や観察を\term{試行}{しこう}{trial}といいます。
+試行で起こりうる結果をすべて集めた集合を\term{標本空間}{ひょうほんくうかん}{sample space}といい、$\Omega$（オメガ）で表します。
+サイコロを 1 回投げる試行なら、$\Omega = \{1, 2, 3, 4, 5, 6\}$ です。
+
+標本空間の一部分（部分集合）を\term{事象}{じしょう}{event}といいます。
+たとえば「偶数の目が出る」という事象は $A = \{2, 4, 6\}$ です。
+$\{1\}$ のように結果を 1 つだけ含む事象を\term{根元事象}{こんげんじしょう}{elementary event}、
+$\Omega$ 自身を\term{全事象}{ぜんじしょう}{certain event}、
+何も含まない事象 $\emptyset$ を\term{空事象}{くうじしょう}{empty event}といいます。
+
+事象は集合なので、集合の演算で新しい事象を作れます（\cref{fig:prep-venn}）。
+
+\begin{definition}[和事象・積事象・余事象][def:event-operations]
+  $A$、$B$ を事象とする。
+  \begin{itemize}
+    \item $A$ または $B$ が起こるという事象 $A \cup B$ を\term{和事象}{わじしょう}{union of events}、
+    \item $A$ と $B$ がともに起こるという事象 $A \cap B$ を\term{積事象}{せきじしょう}{intersection of events}、
+    \item $A$ が起こらないという事象 $A^c$ を\term{余事象}{よじしょう}{complement}
+  \end{itemize}
+  という。また、$A \cap B = \emptyset$（$A$ と $B$ が同時には起こらない）のとき、$A$ と $B$ は\term{排反}{はいはん}{mutually exclusive}であるという。
+\end{definition}
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzpicture}[scale=0.85]
+    \tikzset{
+      omega/.style={draw, thick, tbRef},
+      circ/.style={draw, thick, tbMain},
+      lab/.style={font=\small},
+    }
+    % A ∪ B
+    \begin{scope}
+      \draw[omega] (-1.6,-1.1) rectangle (1.6,1.1);
+      \fill[tbMain!25] (-0.4,0) circle (0.75) (0.4,0) circle (0.75);
+      \draw[circ] (-0.4,0) circle (0.75) (0.4,0) circle (0.75);
+      \node[lab] at (-0.7,0) {$A$}; \node[lab] at (0.7,0) {$B$};
+      \node[lab, tbRef] at (-1.35,0.85) {$\Omega$};
+      \node at (0,-1.5) {和事象 $A \cup B$};
+    \end{scope}
+    % A ∩ B
+    \begin{scope}[xshift=3.8cm]
+      \draw[omega] (-1.6,-1.1) rectangle (1.6,1.1);
+      \begin{scope}
+        \clip (-0.4,0) circle (0.75);
+        \fill[tbMain!25] (0.4,0) circle (0.75);
+      \end{scope}
+      \draw[circ] (-0.4,0) circle (0.75) (0.4,0) circle (0.75);
+      \node[lab] at (-0.7,0) {$A$}; \node[lab] at (0.7,0) {$B$};
+      \node[lab, tbRef] at (-1.35,0.85) {$\Omega$};
+      \node at (0,-1.5) {積事象 $A \cap B$};
+    \end{scope}
+    % A^c
+    \begin{scope}[xshift=7.6cm]
+      \fill[tbMain!25] (-1.6,-1.1) rectangle (1.6,1.1);
+      \draw[omega] (-1.6,-1.1) rectangle (1.6,1.1);
+      \fill[white] (0,0) circle (0.75);
+      \draw[circ] (0,0) circle (0.75);
+      \node[lab] at (0,0) {$A$};
+      \node[lab, tbRef] at (-1.35,0.85) {$\Omega$};
+      \node at (0,-1.5) {余事象 $A^c$};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{和事象・積事象・余事象（色をつけた部分）。外側の長方形が標本空間 $\Omega$}
+  \label{fig:prep-venn}
+\end{figure}
+
+\begin{example}[サイコロの事象][ex:dice-events]
+  サイコロを 1 回投げ、$A = \{2, 4, 6\}$（偶数）、$B = \{4, 5, 6\}$（4 以上）とします。
+  \[
+    A \cup B = \{2, 4, 5, 6\}, \qquad A \cap B = \{4, 6\}, \qquad A^c = \{1, 3, 5\}.
+  \]
+  また、$A$ と $C = \{1, 3\}$ は共通の要素がないので排反です。
+\end{example}
+
+\begin{supplement}[余事象の記号]
+  高校数学では、余事象を $\overline{A}$ と書きます。
+  この本では $\bar{x}$ を平均の記号に使うので、余事象は $A^c$ と書きます（$c$ は complement の頭文字）。
+\end{supplement}
+
+\subsubsection*{確率の定義}
+
+サイコロのように、どの結果が起こることも\textbf{同じ程度に期待できる}（同様に確からしい）とき、事象 $A$ の確率を次のように決めます。
+
+\begin{definition}[確率（同様に確からしい場合）][def:classical-probability]
+  標本空間 $\Omega$ のどの結果も同様に確からしいとき、事象 $A$ の\term{確率}{かくりつ}{probability}を
+  \[
+    \Prob(A) = \frac{n(A)}{n(\Omega)} = \frac{A \text{ に含まれる結果の数}}{\text{起こりうるすべての結果の数}}
+  \]
+  とする。
+\end{definition}
+
+この定義から、次の 3 つの性質がすぐに分かります。
+
+\begin{proposition}[確率の基本性質][prop:probability-axioms]
+  \begin{enumerate}
+    \item どんな事象 $A$ についても $0 \le \Prob(A) \le 1$。
+    \item $\Prob(\Omega) = 1$、$\Prob(\emptyset) = 0$。
+    \item $A$ と $B$ が排反なら、$\Prob(A \cup B) = \Prob(A) + \Prob(B)$。
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  (1) $0 \le n(A) \le n(\Omega)$ の各辺を $n(\Omega)$ で割ります。
+  (2) $n(\Omega)/n(\Omega) = 1$、$n(\emptyset) = 0$ です。
+  (3) $A$ と $B$ に共通の結果がないので、$n(A \cup B) = n(A) + n(B)$ です。
+  両辺を $n(\Omega)$ で割れば示せます。
+\end{proof}
+
+\begin{supplement}[確率の公理]
+  「同様に確からしい」が使えない場面もあります。
+  たとえば、ゆがんだサイコロや、「明日の最高気温」のように結果が連続的な値をとる場合です。
+  そこで現代の確率論では、\cref{prop:probability-axioms} の 3 つの性質（(3) は 3 つ以上の排反な事象にも広げる）を満たすものを、確率と\textbf{定義}します。
+  これを\term{確率の公理}{かくりつのこうり}{axioms of probability}といいます。
+  この節の定理は、どれもこの 3 つの性質だけから導くので、同様に確からしくない場合にもそのまま成り立ちます。
+\end{supplement}
+
+\subsection{確率の加法定理}
+
+排反でない 2 つの事象の和事象の確率は、次のように求めます。
+
+\begin{theorem}[確率の加法定理][thm:addition-rule]
+  どんな事象 $A$、$B$ についても、
+  \[
+    \Prob(A \cup B) = \Prob(A) + \Prob(B) - \Prob(A \cap B).
+  \]
+  特に、$A$ と $B$ が排反なら $\Prob(A \cup B) = \Prob(A) + \Prob(B)$ である。
+\end{theorem}
+
+\begin{proof}
+  和事象 $A \cup B$ を、「$A$」と「$B$ だけれど $A$ ではない部分 $B \cap A^c$」の 2 つに分けます。
+  この 2 つは排反なので、\cref{prop:probability-axioms} の (3) より
+  \[
+    \Prob(A \cup B) = \Prob(A) + \Prob(B \cap A^c)
+  \]
+  です。同じように、$B$ を「$A \cap B$」と「$B \cap A^c$」の排反な 2 つに分けると、
+  \[
+    \Prob(B) = \Prob(A \cap B) + \Prob(B \cap A^c)
+  \]
+  です。2 つめの式から $\Prob(B \cap A^c) = \Prob(B) - \Prob(A \cap B)$ を 1 つめの式に代入すれば、示す式になります。
+\end{proof}
+
+\begin{intuition}
+  \cref{fig:prep-venn} の左の図で、$A$ の面積と $B$ の面積を足すと、重なった部分 $A \cap B$ を 2 回数えてしまいます。
+  そこで、重なりを 1 回分引きます。
+\end{intuition}
+
+\begin{example}[加法定理の確認][ex:addition-rule]
+  \cref{ex:dice-events} の $A$（偶数）、$B$（4 以上）では、
+  \[
+    \Prob(A \cup B) = \frac{3}{6} + \frac{3}{6} - \frac{2}{6} = \frac{4}{6}
+  \]
+  です。$A \cup B = \{2, 4, 5, 6\}$ を直接数えた結果と一致します。
+\end{example}
+
+加法定理から、余事象の確率がすぐに求まります。
+
+\begin{corollary}[余事象の確率][cor:complement]
+  \[
+    \Prob(A^c) = 1 - \Prob(A).
+  \]
+\end{corollary}
+
+\begin{proof}
+  $A$ と $A^c$ は排反で、$A \cup A^c = \Omega$ です。
+  よって $\Prob(A) + \Prob(A^c) = \Prob(\Omega) = 1$ です。
+\end{proof}
+
+\begin{merit}
+  「少なくとも 1 つ」の確率を求めるときに威力を発揮します。
+  「少なくとも 1 つ起こる」の余事象は「1 つも起こらない」で、こちらのほうがずっと数えやすいからです。
+\end{merit}
+
+\begin{example}[少なくとも 1 回 6 が出る確率][ex:at-least-one]
+  サイコロを 3 回投げて、少なくとも 1 回 6 が出る確率を求めます。
+  目の出方は全部で $6^3 = 216$ 通りあり、どれも同様に確からしいです。
+  余事象「1 回も 6 が出ない」は、毎回 6 以外の 5 通りなので $5^3 = 125$ 通りです。
+  よって、求める確率は $1 - 125/216 = 91/216 \approx 0.42$ です。
+\end{example}
+
+\subsection{条件付き確率と乗法定理}
+
+サイコロを 1 回投げたところ、「偶数が出た」とだけ教えてもらったとします。
+このとき、出た目が 4 以上である確率はいくつでしょうか。
+偶数の目は $\{2, 4, 6\}$ の 3 通りで、そのうち 4 以上は $\{4, 6\}$ の 2 通りなので、答えは $2/3$ です。
+何も知らないときの確率 $\Prob(\text{4 以上}) = 1/2$ とは、ちがう値になりました。
+このように、ある情報が分かったときの確率を考えます。
+
+\begin{definition}[条件付き確率][def:conditional-probability]
+  $\Prob(B) > 0$ のとき、
+  \[
+    \Prob(A \mid B) = \frac{\Prob(A \cap B)}{\Prob(B)}
+  \]
+  を、$B$ が起こったという条件のもとでの $A$ の\term{条件付き確率}{じょうけんつきかくりつ}{conditional probability}という。
+\end{definition}
+
+\begin{intuition}
+  「$B$ が起こった」と分かると、起こりうる世界が $\Omega$ 全体から $B$ の中だけに縮みます。
+  その新しい世界 $B$ の中で、$A$ でもある部分 $A \cap B$ が占める割合が、条件付き確率です。
+  上の例なら、$\Prob(A \mid B) = (2/6)/(3/6) = 2/3$ となり、数えた結果と一致します。
+\end{intuition}
+
+条件付き確率の定義の両辺に $\Prob(B)$ をかけると、次の定理が得られます。
+
+\begin{theorem}[確率の乗法定理][thm:multiplication-rule]
+  \[
+    \Prob(A \cap B) = \Prob(B)\, \Prob(A \mid B) = \Prob(A)\, \Prob(B \mid A).
+  \]
+\end{theorem}
+
+\begin{proof}
+  1 つめの等号は、\cref{def:conditional-probability} の両辺に $\Prob(B)$ をかけたものです。
+  $A$ と $B$ の役割を入れかえれば、2 つめの等号も同じように得られます。
+  （$\Prob(A) = 0$ や $\Prob(B) = 0$ のときは、両辺とも $0$ と考えます。）
+\end{proof}
+
+\begin{merit}
+  「まず $B$ が起こり、次に $A$ が起こる」という順番のある出来事の確率を、
+  1 段階ずつの確率のかけ算で求められます。
+  全体を一度に数えるより、ずっと考えやすくなります。
+\end{merit}
+
+\begin{example}[くじを続けて引く][ex:multiplication-rule]
+  赤玉 3 個、白玉 2 個が入った袋から、玉を 1 個ずつ 2 回、もとに戻さずに取り出します。
+  2 回とも赤玉である確率は、乗法定理より
+  \[
+    \Prob(\text{1 回目が赤} \cap \text{2 回目が赤})
+    = \frac{3}{5} \times \frac{2}{4}
+    = \frac{3}{10}
+  \]
+  です。$3/5$ は 1 回目が赤である確率、$2/4$ は「1 回目が赤だった」という条件のもとで 2 回目も赤である確率です
+  （残りの 4 個のうち赤は 2 個）。組合せで数えた $\binom{3}{2} \big/ \binom{5}{2} = 3/10$ と一致します。
+\end{example}
+
+\subsection{事象の独立}
+
+条件付き確率が、条件のないときの確率と変わらない場合があります。
+
+\begin{definition}[事象の独立][def:independent-events]
+  事象 $A$、$B$ について
+  \[
+    \Prob(A \cap B) = \Prob(A)\, \Prob(B)
+  \]
+  が成り立つとき、事象 $A$ と $B$ は\term{独立}{どくりつ}{independent}であるという。
+  独立でないとき、\term{従属}{じゅうぞく}{dependent}であるという。
+\end{definition}
+
+\begin{proposition}[独立の言いかえ][prop:independence-conditional]
+  $\Prob(B) > 0$ のとき、$A$ と $B$ が独立であることと、$\Prob(A \mid B) = \Prob(A)$ は同じである。
+\end{proposition}
+
+\begin{proof}
+  条件付き確率の定義より、$\Prob(A \mid B) = \Prob(A)$ は $\Prob(A \cap B)/\Prob(B) = \Prob(A)$ と同じです。
+  両辺に $\Prob(B)$ をかければ、$\Prob(A \cap B) = \Prob(A)\,\Prob(B)$ になります。
+  逆も、両辺を $\Prob(B)$ で割れば同じです。
+\end{proof}
+
+\begin{intuition}
+  $A$ と $B$ が独立とは、「$B$ が起こったと知っても、$A$ の起こりやすさが変わらない」ことです。
+  つまり、$B$ の情報は、$A$ について何も教えてくれません。
+\end{intuition}
+
+\begin{example}[独立な事象と従属な事象][ex:independence]
+  \begin{itemize}
+    \item サイコロを 2 回投げ、$A$ を「1 回目が 6」、$B$ を「2 回目が奇数」とします。
+      36 通りの目の出方のうち、$A \cap B$ は $3$ 通りなので $\Prob(A \cap B) = 3/36 = 1/12$ です。
+      これは $\Prob(A)\,\Prob(B) = (1/6) \times (1/2)$ に等しいので、$A$ と $B$ は独立です。
+    \item サイコロを 1 回投げ、$A$ を「偶数」、$B$ を「4 以上」とします（\cref{ex:dice-events}）。
+      $\Prob(A \cap B) = 2/6 = 1/3$ ですが、$\Prob(A)\,\Prob(B) = 1/4$ なので、$A$ と $B$ は独立ではありません。
+      実際、「4 以上」と知ると、偶数である確率は $1/2$ から $2/3$ に上がりました。
+  \end{itemize}
+\end{example}
+
+サイコロを何回も投げるときのように、各回の結果がほかの回の結果に影響しない試行を\term{独立な試行}{どくりつなしこう}{independent trials}といいます。
+独立な試行では、「1 回目に $A$、2 回目に $B$、\dots」が起こる確率は、各回の確率の積になります。
+\cref{ex:at-least-one} の $(5/6)^3$ は、この考え方でも求められます。
+
+\begin{exampoint}
+  「独立」と「排反」は、まったく別の概念です。
+  $\Prob(A) > 0$、$\Prob(B) > 0$ のとき、$A$ と $B$ が排反なら $\Prob(A \cap B) = 0 \ne \Prob(A)\,\Prob(B)$ なので、決して独立になりません。
+  排反とは「$B$ が起こったら、$A$ は絶対に起こっていない」ということなので、$B$ の情報が $A$ について大いに教えてくれる関係なのです。
+\end{exampoint}
+
+\subsection{ベイズの定理}
+
+次の問題を考えます。
+
+\begin{quote}
+  ある病気にかかっている人は、全体の 1\% である。
+  この病気の検査は、病気の人が受けると 99\% の確率で陽性になる。
+  一方、病気でない人が受けても、5\% の確率で（まちがって）陽性になる。
+  ある人が検査を受けたところ、陽性だった。この人が本当に病気である確率はいくつか。
+\end{quote}
+
+「99\% の精度の検査で陽性なのだから、ほぼ確実に病気だろう」と思うかもしれません。
+これを正しく計算する道具が、ベイズの定理です。
+まず、準備として次の定理を示します。
+
+\begin{theorem}[全確率の公式][thm:total-probability]
+  事象 $B_1, B_2, \dots, B_k$ がどの 2 つも排反で、$B_1 \cup B_2 \cup \dots \cup B_k = \Omega$ であるとする
+  （$\Omega$ をすき間なく、重なりなく分けている）。このとき、どんな事象 $A$ についても
+  \[
+    \Prob(A) = \sum_{j=1}^{k} \Prob(B_j)\, \Prob(A \mid B_j).
+  \]
+\end{theorem}
+
+\begin{proof}
+  $A$ を、$A \cap B_1, A \cap B_2, \dots, A \cap B_k$ に分けます。
+  $B_j$ どうしが排反なので、これらもどの 2 つも排反で、合わせると $A$ になります。
+  よって、確率の性質 (3) をくり返し使うと
+  $\Prob(A) = \sum_{j=1}^{k} \Prob(A \cap B_j)$ です。
+  各項に乗法定理（\cref{thm:multiplication-rule}）$\Prob(A \cap B_j) = \Prob(B_j)\,\Prob(A \mid B_j)$ を使えば、示す式になります。
+\end{proof}
+
+\begin{intuition}
+  「$A$ が起こる」までの道すじを、原因 $B_1, \dots, B_k$ ごとに場合分けして、最後に足し合わせています。
+  場合分けして数える、という高校数学でおなじみの考え方を式にしたものです。
+\end{intuition}
+
+\begin{theorem}[ベイズの定理][thm:bayes]
+  \cref{thm:total-probability} と同じ $B_1, \dots, B_k$ について、$\Prob(A) > 0$ なら
+  \[
+    \Prob(B_j \mid A) = \frac{\Prob(B_j)\, \Prob(A \mid B_j)}{\displaystyle\sum_{l=1}^{k} \Prob(B_l)\, \Prob(A \mid B_l)}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  条件付き確率の定義と乗法定理より、
+  \[
+    \Prob(B_j \mid A) = \frac{\Prob(A \cap B_j)}{\Prob(A)} = \frac{\Prob(B_j)\, \Prob(A \mid B_j)}{\Prob(A)}
+  \]
+  です。分母の $\Prob(A)$ を全確率の公式（\cref{thm:total-probability}）で書きかえれば、示す式になります。
+\end{proof}
+
+この定理を\term{ベイズの定理}{べいずのていり}{Bayes' theorem}といいます。
+$B_j$ を「原因」、$A$ を「観測された結果」と考えると、
+$\Prob(B_j)$ は結果を見る前の原因の確率、$\Prob(B_j \mid A)$ は結果を見た後の原因の確率です。
+前者を\term{事前確率}{じぜんかくりつ}{prior probability}、後者を\term{事後確率}{じごかくりつ}{posterior probability}といいます。
+
+\begin{example}[検査の陽性と病気の確率][ex:bayes-test]
+  最初の問題を解きます。$B_1$ を「病気」、$B_2$ を「病気でない」、$A$ を「陽性」とすると、
+  \[
+    \Prob(B_1) = 0.01, \quad \Prob(B_2) = 0.99, \quad
+    \Prob(A \mid B_1) = 0.99, \quad \Prob(A \mid B_2) = 0.05
+  \]
+  です。ベイズの定理より、
+  \[
+    \Prob(B_1 \mid A)
+    = \frac{0.01 \times 0.99}{0.01 \times 0.99 + 0.99 \times 0.05}
+    = \frac{0.0099}{0.0099 + 0.0495}
+    = \frac{1}{6} \approx 0.17.
+  \]
+  陽性でも、本当に病気である確率は約 17\% しかありません。
+\end{example}
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzpicture}[
+      box/.style={draw, rounded corners=2pt, align=center, font=\small, minimum width=24mm, inner sep=3pt},
+      posbox/.style={box, draw=tbTheorem, fill=tbTheorem!10, text=tbTheorem},
+      edge/.style={-{Stealth[length=2mm]}, thick, tbRef},
+      p/.style={font=\scriptsize, fill=white, inner sep=1pt},
+    ]
+    \node[box] (all) at (0,0) {10000 人};
+    \node[box] (sick) at (3.6,1.3) {病気\\100 人};
+    \node[box] (well) at (3.6,-1.3) {病気でない\\9900 人};
+    \node[posbox](sp) at (7.6,1.9) {陽性 99 人};
+    \node[box] (sn) at (7.6,0.7) {陰性 1 人};
+    \node[posbox](wp) at (7.6,-0.7) {陽性 495 人};
+    \node[box] (wn) at (7.6,-1.9) {陰性 9405 人};
+    \draw[edge] (all) -- node[p] {1\%} (sick);
+    \draw[edge] (all) -- node[p] {99\%} (well);
+    \draw[edge] (sick.east) -- node[p] {99\%} (sp.west);
+    \draw[edge] (sick.east) -- node[p] {1\%} (sn.west);
+    \draw[edge] (well.east) -- node[p] {5\%} (wp.west);
+    \draw[edge] (well.east) -- node[p] {95\%} (wn.west);
+  \end{tikzpicture}
+  \caption{10000 人が検査を受けた場合の人数。陽性の 594 人のうち、病気の人は 99 人だけである}
+  \label{fig:prep-bayes-tree}
+\end{figure}
+
+\begin{intuition}
+  10000 人が検査を受けたとして、人数で考えてみます（\cref{fig:prep-bayes-tree}）。
+  病気の人は 100 人で、そのうち 99 人が陽性になります。
+  病気でない人は 9900 人もいるので、その 5\% でも 495 人が陽性になります。
+  陽性の人は合わせて 594 人で、そのうち病気の人は 99 人、つまり $99/594 = 1/6$ です。
+  もともと病気でない人がとても多いので、陽性の人の大部分は「まちがって陽性になった人」なのです。
+\end{intuition}
+
+\begin{merit}
+  ベイズの定理を使うと、
+  「原因 → 結果」の確率（病気の人が陽性になる確率。実験で調べやすい）から、
+  「結果 → 原因」の確率（陽性の人が病気である確率。本当に知りたいもの）を計算できます。
+  また、データ（結果）を見るたびに、原因についての確率を事前確率から事後確率へと更新していけます。
+  この考え方は、\cref{chap:stat-bayes}で学ぶベイズ統計の出発点になります。
+\end{merit}
+
+\begin{exampoint}
+  $\Prob(A \mid B)$ と $\Prob(B \mid A)$ は、まったくちがう値です。
+  「病気なら 99\% 陽性」は「陽性なら 99\% 病気」を意味しません。
+  事前確率（ここでは 1\%）が小さいほど、2 つの差は大きくなります。
+\end{exampoint}
+
+\begin{problem}[2 回目の検査][prob:bayes-second]
+  \cref{ex:bayes-test} で陽性だった人が、もう一度同じ検査を受けたところ、再び陽性でした。
+  この人が病気である確率を求めなさい。
+  ただし、病気かどうかが決まっていれば、2 回の検査の結果は独立とします。
+  \tcblower
+  1 回目の結果を見た後の確率 $1/6$ を、新しい事前確率として使います。
+  \[
+    \frac{\frac{1}{6} \times 0.99}{\frac{1}{6} \times 0.99 + \frac{5}{6} \times 0.05}
+    = \frac{0.99}{0.99 + 0.25}
+    = \frac{0.99}{1.24} \approx 0.80.
+  \]
+  2 回続けて陽性なら、病気である確率は約 80\% まで上がります。
+  データが増えるほど、確率が更新されて確かになっていく様子が分かります。
+\end{problem}
+
+ベイズの定理の結果は、Python で 100 万人分の検査をまねて（シミュレーションして）確かめることもできます。
+
+\begin{pycode}[検査のシミュレーション]
+import numpy as np
+
+rng = np.random.default_rng(seed=0)
+n = 1_000_000                       # 100 万人で試す
+sick = rng.random(n) < 0.01         # 1% の人が病気
+u = rng.random(n)
+positive = np.where(sick, u < 0.99, u < 0.05)  # 病気なら 99%、健康なら 5% で陽性
+print(positive.sum())               # 陽性の人数
+print(sick[positive].mean())        # 陽性の人のうち、病気の人の割合
+\end{pycode}
+
+\begin{pyoutput}
+59489
+0.1660811242414564
+\end{pyoutput}
+
+\texttt{rng.random(n)} は $0$ 以上 $1$ 未満の乱数を $n$ 個作る関数で、\texttt{< 0.01} と比べると、約 1\% が \texttt{True} になります。
+陽性の人のうち病気の人の割合は約 $0.166$ で、理論値 $1/6 \approx 0.1667$ とほぼ一致します。
 
 % ---------------------------------------------------------------------
 \section{確率変数と期待値}
