@@ -993,12 +993,584 @@ print(sick[positive].mean())        # 陽性の人のうち、病気の人の割
 \section{確率変数と期待値}
 \label{sec:stat-random-variable}
 
-% TODO: 離散型の確率変数と確率分布
-% TODO: 連続型の確率変数と確率密度関数（「面積が確率」というイメージ）
-% TODO: 累積分布関数
-% TODO: 期待値と分散の定義と性質（$E[aX+b]$、$V[aX+b]$ など）
-% TODO: 2つの確率変数：同時分布、周辺分布、共分散、独立
-% TODO: 和の期待値と分散（独立なときの分散の足し算）
+前の節では「事象」の確率を考えました。
+統計では、「サイコロの目」や「身長」のように、試行の結果を\textbf{数値}で表して扱うことがほとんどです。
+この節では、偶然によって値が決まる数を考え、その平均やばらつきを調べます。
+
+\subsection{離散型の確率変数と確率分布}
+
+\begin{definition}[確率変数][def:random-variable]
+  試行の結果によって値が決まり、それぞれの値をとる確率が決まっている変数を\term{確率変数}{かくりつへんすう}{random variable}という。
+\end{definition}
+
+確率変数は $X$、$Y$ のように大文字で書き、実際にとった値（\term{実現値}{じつげんち}{realization}）は $x$、$y$ のように小文字で書きます。
+「$X$ が値 $x$ をとる確率」を $\Prob(X = x)$、「$X$ が $3$ 以下になる確率」を $\Prob(X \le 3)$ のように書きます。
+
+\begin{example}[コインの表の枚数][ex:coin-rv]
+  コインを 2 回投げて、表が出た回数を $X$ とします。
+  結果は（表表）（表裏）（裏表）（裏裏）の 4 通りで、どれも同様に確からしいので、
+  \begin{center}
+    \begin{tabular}{c|ccc|c}
+      \toprule
+      $x$ & 0 & 1 & 2 & 合計 \\
+      \midrule
+      $\Prob(X = x)$ & $1/4$ & $2/4$ & $1/4$ & 1 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  となります。$X$ は $0, 1, 2$ のどれかの値をとる確率変数です。
+\end{example}
+
+この例のように、とりうる値が $0, 1, 2, \dots$ のように飛び飛びで、1 つずつ数え上げられる確率変数を\term{離散型確率変数}{りさんがたかくりつへんすう}{discrete random variable}といいます。
+
+\begin{definition}[確率分布と確率関数][def:pmf]
+  離散型確率変数 $X$ のとりうる値を $x_1, x_2, \dots$ とする。
+  それぞれの値と、その値をとる確率との対応を、$X$ の\term{確率分布}{かくりつぶんぷ}{probability distribution}という。
+  また、
+  \[
+    p(x) = \Prob(X = x)
+  \]
+  を $X$ の\term{確率関数}{かくりつかんすう}{probability mass function, PMF}という。
+  確率関数は、次の 2 つを満たす。
+  \[
+    p(x_k) \ge 0, \qquad \sum_{k} p(x_k) = 1.
+  \]
+\end{definition}
+
+2 つめの式は、「$X$ はとりうる値のどれか 1 つを必ずとる」ことを表しています。
+\cref{ex:coin-rv} でも、確率の合計は $1/4 + 2/4 + 1/4 = 1$ です。
+
+「$X$ がある確率分布にしたがう」ということもあります。
+たとえば、「サイコロの目 $X$ は、$1$ から $6$ までの値をそれぞれ確率 $1/6$ でとる分布にしたがう」のように使います。
+
+\subsection{連続型の確率変数と確率密度関数}
+
+身長や待ち時間のように、ある範囲のどんな実数でもとりうる量を考えます。
+このような量は、値を 1 つずつ数え上げられません。
+しかも、身長がぴったり $170.000\cdots$ cm になる確率は、事実上 $0$ です。
+そこで、1 つの値の確率ではなく、「ある範囲に入る確率」を考えます。
+
+イメージをつかむため、ヒストグラムを思い出しましょう。
+ヒストグラムの棒の高さを「相対度数 $\div$ 階級の幅」にすると、棒の\textbf{面積}がその階級の相対度数（割合）になります。
+データを増やし、階級の幅を細かくしていくと、ヒストグラムは 1 本のなめらかな曲線に近づいていきます（\cref{fig:prep-density} の左）。
+この曲線が、次に定義する確率密度関数です。
+
+\begin{definition}[確率密度関数][def:pdf]
+  関数 $f(x)$ が
+  \[
+    f(x) \ge 0, \qquad \int_{-\infty}^{\infty} f(x) \dd x = 1
+  \]
+  を満たし、どんな $a \le b$ についても
+  \[
+    \Prob(a \le X \le b) = \int_{a}^{b} f(x) \dd x
+  \]
+  となるとき、$X$ を\term{連続型確率変数}{れんぞくがたかくりつへんすう}{continuous random variable}、
+  $f(x)$ を $X$ の\term{確率密度関数}{かくりつみつどかんすう}{probability density function, PDF}という。
+\end{definition}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_density.pdf}
+  \caption{確率密度関数 $f(x) = 2x$（$0 \le x \le 1$）。左：ヒストグラムを細かくしていくと $f(x)$ に近づく。右：$\Prob(0.5 \le X \le 1)$ は色をつけた部分の面積}
+  \label{fig:prep-density}
+\end{figure}
+
+\begin{intuition}
+  確率密度関数では、\textbf{面積が確率}を表します（\cref{fig:prep-density} の右）。
+  $X$ が $a$ から $b$ の間に入る確率は、グラフと横軸の間の、$a$ から $b$ までの部分の面積です。
+  グラフの下の面積全体は $1$（$X$ は必ずどこかの値をとる）です。
+\end{intuition}
+
+\begin{mathnote}[$-\infty$ から $\infty$ までの積分]
+  $\int_{-\infty}^{\infty} f(x) \dd x$ は、$\int_{-R}^{R} f(x) \dd x$ で $R$ を限りなく大きくしたときの極限を意味します。
+  このような積分を\term{広義積分}{こうぎせきぶん}{improper integral}といいます。
+  $f(x)$ が $0 \le x \le 1$ の外で $0$ なら、$\int_{-\infty}^{\infty} f(x) \dd x = \int_{0}^{1} f(x) \dd x$ で、高校数学の定積分と同じです。
+  くわしくは数学基礎の部で扱います。
+\end{mathnote}
+
+\begin{example}[確率密度関数 $f(x) = 2x$][ex:pdf-2x]
+  確率変数 $X$ の確率密度関数が
+  \[
+    f(x) = \begin{cases} 2x & (0 \le x \le 1) \\ 0 & (\text{それ以外}) \end{cases}
+  \]
+  であるとします。全体の面積は $\int_0^1 2x \dd x = \bigl[x^2\bigr]_0^1 = 1$ で、確率密度関数の条件を満たします。
+  $X$ が $0.5$ 以上になる確率は
+  \[
+    \Prob(0.5 \le X \le 1) = \int_{0.5}^{1} 2x \dd x = \bigl[x^2\bigr]_{0.5}^{1} = 1 - 0.25 = 0.75
+  \]
+  です。区間の幅は同じ $0.5$ でも、$f(x)$ が大きい右半分のほうが、確率が大きくなります。
+\end{example}
+
+連続型確率変数について、注意することが 2 つあります。
+\begin{itemize}
+  \item 1 つの値をとる確率は $0$ です。$\Prob(X = a) = \int_a^a f(x) \dd x = 0$ だからです。
+    そのため、$\Prob(a \le X \le b)$ と $\Prob(a < X < b)$ は同じ値になり、不等号に等号を含むかどうかを気にする必要はありません。
+  \item $f(x)$ の値そのものは確率ではありません。\cref{ex:pdf-2x} の $f(1) = 2$ のように、$1$ を超えることもあります。
+    $f(x)$ は「$x$ のあたりの、幅 $1$ あたりの確率」を表す量で、幅 $\Delta x$ が小さいとき
+    $\Prob(x \le X \le x + \Delta x) \approx f(x)\,\Delta x$ です。
+    「密度」という名前は、ここから来ています。
+\end{itemize}
+
+\subsection{累積分布関数}
+
+離散型と連続型の両方を、1 つの関数で表す方法があります。
+
+\begin{definition}[累積分布関数][def:cdf]
+  確率変数 $X$ に対して、
+  \[
+    F(x) = \Prob(X \le x)
+  \]
+  を $X$ の\term{累積分布関数}{るいせきぶんぷかんすう}{cumulative distribution function, CDF}という。
+  単に\term{分布関数}{ぶんぷかんすう}{distribution function}ともいう。
+\end{definition}
+
+離散型なら、$x$ 以下の値の確率を足し合わせて $F(x) = \sum_{x_k \le x} p(x_k)$、
+連続型なら、$x$ より左の面積で $F(x) = \int_{-\infty}^{x} f(t) \dd t$ です。
+離散型の累積分布関数は階段状に、連続型の累積分布関数はなめらかに増えていきます（\cref{fig:prep-cdf}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_cdf.pdf}
+  \caption{累積分布関数。左：サイコロの目（●は値を含み、○は含まない）。右：\cref{ex:pdf-2x} の $X$（$F(x) = x^2$）}
+  \label{fig:prep-cdf}
+\end{figure}
+
+\begin{proposition}[累積分布関数の性質][prop:cdf-properties]
+  \begin{enumerate}
+    \item $F(x)$ は増加関数である（$a < b$ なら $F(a) \le F(b)$）。
+    \item $x$ を限りなく小さくすると $F(x) \to 0$、限りなく大きくすると $F(x) \to 1$。
+    \item $a < b$ のとき、$\Prob(a < X \le b) = F(b) - F(a)$。
+    \item $X$ が連続型なら、$F'(x) = f(x)$。
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  (3) 事象「$X \le b$」は、排反な 2 つの事象「$X \le a$」と「$a < X \le b$」に分けられます。
+  よって $F(b) = F(a) + \Prob(a < X \le b)$ です。
+  (1) (3) より $F(b) - F(a)$ は確率なので $0$ 以上です。
+  (2) $x$ を小さくしていくと「$X \le x$」はほとんど起こらなくなり、大きくしていくとほとんど必ず起こるようになるからです。
+  (4) $F(x) = \int_{-\infty}^{x} f(t) \dd t$ を $x$ で微分すると $f(x)$ になります（数学 III の「定積分で表された関数の微分」）。
+\end{proof}
+
+\begin{example}[$f(x) = 2x$ の累積分布関数][ex:cdf-2x]
+  \cref{ex:pdf-2x} の $X$ では、$0 \le x \le 1$ のとき $F(x) = \int_0^x 2t \dd t = x^2$ です。
+  まとめると、
+  \[
+    F(x) = \begin{cases} 0 & (x < 0) \\ x^2 & (0 \le x \le 1) \\ 1 & (x > 1) \end{cases}
+  \]
+  です。$\Prob(X \ge 0.5) = 1 - F(0.5) = 1 - 0.25 = 0.75$ と、\cref{ex:pdf-2x} と同じ答えが積分なしで求まります。
+\end{example}
+
+\begin{merit}
+  累積分布関数が分かっていれば、どんな区間の確率も引き算 1 回で求まります（性質 (3)）。
+  \cref{sec:stat-basic-distributions}で使う正規分布表は、正規分布の累積分布関数（を少し変形したもの）の値を並べた表です。
+  積分を計算できない分布でも、表やコンピュータで $F(x)$ の値さえ分かれば、確率が求まるのです。
+\end{merit}
+
+\subsection{期待値と分散}
+
+確率変数の「真ん中」と「ばらつき」を表す量を定義します。
+\cref{sec:stat-summary}のデータの平均・分散と、考え方は同じです。
+
+\begin{definition}[期待値][def:expectation]
+  確率変数 $X$ の\term{期待値}{きたいち}{expected value, expectation}を、次のように定める。
+  \[
+    \E[X] = \sum_{k} x_k\, p(x_k) \quad (\text{離散型}), \qquad
+    \E[X] = \int_{-\infty}^{\infty} x f(x) \dd x \quad (\text{連続型}).
+  \]
+  期待値は $X$ の\textbf{平均}ともいい、$\mu$（ミュー）で表すことが多い。
+\end{definition}
+
+\begin{intuition}
+  期待値は「試行を何回もくり返したときの、$X$ の値の平均」です。
+  たとえば、サイコロを $n$ 回投げて、目 $k$ が $n_k$ 回出たとすると、出た目の平均は
+  $\sum_{k=1}^{6} k \cdot \dfrac{n_k}{n}$ です。
+  $n$ を大きくすると、相対度数 $n_k/n$ は確率 $1/6$ に近づくので、出た目の平均は $\sum_{k=1}^{6} k \cdot \dfrac{1}{6}$、つまり期待値に近づきます。
+  また、期待値は確率分布の重心（つり合いの点）でもあります。
+\end{intuition}
+
+\begin{example}[サイコロの目の期待値][ex:dice-expectation]
+  サイコロの目 $X$ の期待値は
+  \[
+    \E[X] = 1 \cdot \frac{1}{6} + 2 \cdot \frac{1}{6} + \dots + 6 \cdot \frac{1}{6} = \frac{21}{6} = 3.5
+  \]
+  です。期待値は、$X$ が実際にとる値（$1$ から $6$ の整数）でなくてもかまいません。
+\end{example}
+
+\begin{example}[$f(x) = 2x$ の期待値][ex:expectation-2x]
+  \cref{ex:pdf-2x} の $X$ の期待値は
+  \[
+    \E[X] = \int_0^1 x \cdot 2x \dd x = \left[\frac{2x^3}{3}\right]_0^1 = \frac{2}{3}
+  \]
+  です。密度が右側ほど大きいので、期待値は区間の真ん中 $0.5$ より右にきます。
+\end{example}
+
+$X$ を関数 $g$ で変換した $g(X)$（たとえば $X^2$）も確率変数です。その期待値は次のように計算できます。
+
+\begin{proposition}[$g(X)$ の期待値][prop:expectation-function]
+  \[
+    \E[g(X)] = \sum_{k} g(x_k)\, p(x_k) \quad (\text{離散型}), \qquad
+    \E[g(X)] = \int_{-\infty}^{\infty} g(x) f(x) \dd x \quad (\text{連続型}).
+  \]
+\end{proposition}
+
+\begin{proof}
+  離散型の場合を示します。$Y = g(X)$ が値 $y$ をとるのは、$g(x_k) = y$ となる $x_k$ を $X$ がとるときです。
+  よって $\Prob(Y = y) = \sum_{k:\, g(x_k) = y} p(x_k)$ です（和は $g(x_k) = y$ となる $k$ だけについてとる）。
+  期待値の定義より、
+  \[
+    \E[Y] = \sum_{y} y \sum_{k:\, g(x_k) = y} p(x_k) = \sum_{y} \sum_{k:\, g(x_k) = y} g(x_k)\, p(x_k) = \sum_{k} g(x_k)\, p(x_k)
+  \]
+  です。最後の等号は、$y$ ごとにまとめて足していたものを、$k$ について 1 つずつ足すように並べかえただけです。
+  連続型の場合も、和を積分に置きかえた式が成り立ちます（証明には高校数学を超える道具が必要なので省きます）。
+\end{proof}
+
+期待値には、次の大切な性質があります。
+
+\begin{theorem}[期待値の線形性（1 変数）][thm:expectation-linear]
+  $a$、$b$ を定数とすると、
+  \[
+    \E[aX + b] = a\E[X] + b.
+  \]
+\end{theorem}
+
+\begin{proof}
+  離散型の場合、\cref{prop:expectation-function} と $\sum_k p(x_k) = 1$ より
+  \[
+    \E[aX + b] = \sum_{k} (a x_k + b)\, p(x_k) = a \sum_{k} x_k\, p(x_k) + b \sum_{k} p(x_k) = a\E[X] + b
+  \]
+  です。連続型の場合も、和を積分に、$p(x_k)$ を $f(x)$ に置きかえれば同じです。
+\end{proof}
+
+次に、ばらつきを表す量を定義します。
+データの分散と同じく、「平均からの離れ具合の 2 乗」の期待値を考えます。
+
+\begin{definition}[分散と標準偏差][def:variance]
+  $\mu = \E[X]$ とする。確率変数 $X$ の分散と標準偏差を
+  \[
+    \V[X] = \E\bigl[(X - \mu)^2\bigr], \qquad \sqrt{\V[X]}
+  \]
+  とする。分散を $\sigma^2$、標準偏差を $\sigma$（シグマ）で表すことが多い。
+\end{definition}
+
+\begin{theorem}[分散の計算公式][thm:variance-shortcut]
+  \[
+    \V[X] = \E[X^2] - \bigl(\E[X]\bigr)^2.
+  \]
+\end{theorem}
+
+\begin{proof}
+  $(X - \mu)^2 = X^2 - 2\mu X + \mu^2$ の期待値をとります。
+  \cref{prop:expectation-function} の和（積分）を項ごとに分け、定数を外に出すと、
+  \[
+    \V[X] = \E[X^2] - 2\mu\E[X] + \mu^2 = \E[X^2] - 2\mu^2 + \mu^2 = \E[X^2] - \mu^2
+  \]
+  です。
+\end{proof}
+
+これは、データの分散の計算公式（\cref{thm:var-shortcut-data}）と同じ形です。
+「2 乗の期待値 $-$ 期待値の 2 乗」と覚えておきましょう。
+
+\begin{example}[サイコロの目の分散][ex:dice-variance]
+  サイコロの目 $X$ では、
+  $\E[X^2] = (1 + 4 + 9 + 16 + 25 + 36)/6 = 91/6$ なので、
+  \[
+    \V[X] = \frac{91}{6} - \left(\frac{7}{2}\right)^2 = \frac{182 - 147}{12} = \frac{35}{12} \approx 2.92
+  \]
+  です。標準偏差は $\sqrt{35/12} \approx 1.71$ です。
+\end{example}
+
+\begin{example}[$f(x) = 2x$ の分散][ex:variance-2x]
+  \cref{ex:pdf-2x} の $X$ では、$\E[X^2] = \int_0^1 x^2 \cdot 2x \dd x = \left[\dfrac{x^4}{2}\right]_0^1 = \dfrac{1}{2}$ なので、
+  $\V[X] = \dfrac{1}{2} - \left(\dfrac{2}{3}\right)^2 = \dfrac{1}{18}$ です。
+\end{example}
+
+\begin{theorem}[$aX + b$ の分散][thm:variance-linear]
+  $a$、$b$ を定数とすると、
+  \[
+    \V[aX + b] = a^2\, \V[X].
+  \]
+  特に、標準偏差は $\abs{a}$ 倍になり、$b$ によらない。
+\end{theorem}
+
+\begin{proof}
+  $\mu = \E[X]$ とすると、\cref{thm:expectation-linear} より $\E[aX + b] = a\mu + b$ です。
+  よって
+  \[
+    \V[aX + b] = \E\bigl[(aX + b - a\mu - b)^2\bigr] = \E\bigl[a^2 (X - \mu)^2\bigr] = a^2\, \E\bigl[(X - \mu)^2\bigr] = a^2\, \V[X]
+  \]
+  です（3 つめの等号でも\cref{thm:expectation-linear} を使いました）。
+\end{proof}
+
+\begin{intuition}
+  $b$ を足すことは、分布全体を横に $b$ だけずらすことです。位置が変わるだけで、ばらつきは変わりません。
+  $a$ 倍することは、分布を横に $a$ 倍に引き伸ばすことです。
+  平均からの離れ具合が $\abs{a}$ 倍になるので、その 2 乗である分散は $a^2$ 倍になります。
+\end{intuition}
+
+\begin{merit}
+  単位を変えたとき（円をドルに、cm を m に）や、点数を一律に調整したときの期待値と分散が、計算し直さずに分かります。
+  特に、$\mu = \E[X]$、$\sigma^2 = \V[X]$ のとき、
+  \[
+    Z = \frac{X - \mu}{\sigma}
+  \]
+  とおくと、$\E[Z] = (\mu - \mu)/\sigma = 0$、$\V[Z] = \sigma^2/\sigma^2 = 1$ になります。
+  この\textbf{確率変数の標準化}は、\cref{sec:stat-basic-distributions}で正規分布の確率を求めるときに使います。
+\end{merit}
+
+\subsection{2 つの確率変数}
+
+2 つの確率変数を同時に考えます。ここでは離散型で説明します。
+
+\begin{definition}[同時確率分布と周辺分布][def:joint-distribution]
+  2 つの離散型確率変数 $X$、$Y$ について、
+  \[
+    p(x, y) = \Prob(X = x,\ Y = y)
+  \]
+  （「$X = x$ かつ $Y = y$」の確率）を、$X$ と $Y$ の\term{同時確率分布}{どうじかくりつぶんぷ}{joint probability distribution}という。
+  また、$X$ だけ、$Y$ だけに注目した確率分布を、それぞれの\term{周辺分布}{しゅうへんぶんぷ}{marginal distribution}という。
+\end{definition}
+
+\begin{proposition}[周辺分布の求め方][prop:marginal]
+  \[
+    \Prob(X = x) = \sum_{y} p(x, y), \qquad \Prob(Y = y) = \sum_{x} p(x, y).
+  \]
+\end{proposition}
+
+\begin{proof}
+  事象「$Y = y$」は、$y$ を $Y$ のとりうる値全体で動かすと、$\Omega$ をすき間なく重なりなく分けます。
+  そこで、事象「$X = x$」を、$Y$ の値ごとに排反な事象「$X = x,\ Y = y$」に分けて足せば、1 つめの式になります。
+  2 つめの式も同じです。
+\end{proof}
+
+\begin{example}[1 回目の表と、表の合計][ex:joint]
+  コインを 2 回投げ、1 回目が表なら $X = 1$、裏なら $X = 0$ とし、2 回の表の合計を $Y$ とします。
+  4 通りの結果を数えると、同時確率分布は次のようになります。
+  表の右端と下端の「計」が、周辺分布です（\cref{prop:marginal}）。
+  \begin{center}
+    \begin{tabular}{c|ccc|c}
+      \toprule
+      & $Y = 0$ & $Y = 1$ & $Y = 2$ & 計 \\
+      \midrule
+      $X = 0$ & $1/4$ & $1/4$ & $0$ & $1/2$ \\
+      $X = 1$ & $0$ & $1/4$ & $1/4$ & $1/2$ \\
+      \midrule
+      計 & $1/4$ & $1/2$ & $1/4$ & $1$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{example}
+
+事象の独立（\cref{def:independent-events}）と同じように、確率変数の独立を定めます。
+
+\begin{definition}[確率変数の独立][def:independent-rv]
+  すべての $x$、$y$ について
+  \[
+    \Prob(X = x,\ Y = y) = \Prob(X = x)\, \Prob(Y = y)
+  \]
+  が成り立つとき、確率変数 $X$ と $Y$ は独立であるという。
+  3 つ以上の確率変数 $X_1, \dots, X_n$ についても、
+  $\Prob(X_1 = x_1, \dots, X_n = x_n) = \Prob(X_1 = x_1) \times \dots \times \Prob(X_n = x_n)$ がすべての値の組で成り立つとき、独立であるという。
+\end{definition}
+
+\cref{ex:joint} の $X$ と $Y$ は独立ではありません。
+$\Prob(X = 0,\ Y = 2) = 0$ ですが、$\Prob(X = 0)\,\Prob(Y = 2) = 1/8$ だからです。
+1 回目が裏だと分かれば、合計が 2 になることはありえないので、当然です。
+一方、「1 回目の表の数」と「2 回目の表の数」は、独立な試行の結果なので独立です。
+
+2 つの確率変数の関係の強さは、データの共分散・相関係数（\cref{def:covariance-data,def:correlation-data}）と同じように測ります。
+$g(X, Y)$ の期待値は、\cref{prop:expectation-function} と同じように $\E[g(X, Y)] = \sum_x \sum_y g(x, y)\, p(x, y)$ で計算します。
+
+\begin{definition}[共分散と相関係数][def:covariance]
+  $\mu_X = \E[X]$、$\mu_Y = \E[Y]$、$\sigma_X^2 = \V[X]$、$\sigma_Y^2 = \V[Y]$ とする。
+  \[
+    \Cov(X, Y) = \E\bigl[(X - \mu_X)(Y - \mu_Y)\bigr], \qquad
+    \rho_{XY} = \frac{\Cov(X, Y)}{\sigma_X\, \sigma_Y}
+  \]
+  を、$X$ と $Y$ の共分散、相関係数という。$\rho$ は「ロー」と読む。
+\end{definition}
+
+\begin{proposition}[共分散の計算公式][prop:covariance-shortcut]
+  \[
+    \Cov(X, Y) = \E[XY] - \E[X]\,\E[Y].
+  \]
+  また、データの場合（\cref{thm:corr-range}）と同じく、$-1 \le \rho_{XY} \le 1$ である。
+\end{proposition}
+
+\begin{proof}
+  $(X - \mu_X)(Y - \mu_Y) = XY - \mu_Y X - \mu_X Y + \mu_X \mu_Y$ の期待値をとると、
+  $\E[XY] - \mu_Y \mu_X - \mu_X \mu_Y + \mu_X \mu_Y = \E[XY] - \mu_X \mu_Y$ です
+  （和の期待値を項ごとに分けられることは、次の\cref{thm:expectation-sum} で示します）。
+  相関係数の範囲は、\cref{thm:corr-range} の証明の $\frac{1}{n}\sum_{i=1}^{n}$ を $\E$ に置きかえれば、まったく同じように示せます。
+\end{proof}
+
+\begin{example}[共分散と相関係数の計算][ex:covariance-rv]
+  \cref{ex:joint} で、$\E[X] = 1/2$、$\E[Y] = 0 \cdot \frac14 + 1 \cdot \frac12 + 2 \cdot \frac14 = 1$ です。
+  $XY$ が $0$ でないのは $(X, Y) = (1, 1), (1, 2)$ のときだけなので、
+  $\E[XY] = 1 \cdot 1 \cdot \frac14 + 1 \cdot 2 \cdot \frac14 = \frac34$ です。よって
+  \[
+    \Cov(X, Y) = \frac34 - \frac12 \cdot 1 = \frac14
+  \]
+  です。$\V[X] = \frac12 - \left(\frac12\right)^2 = \frac14$、$\V[Y] = \left(0 + \frac12 + 4 \cdot \frac14\right) - 1^2 = \frac12$ なので、
+  $\rho_{XY} = \dfrac{1/4}{\sqrt{1/4}\,\sqrt{1/2}} = \dfrac{1}{\sqrt{2}} \approx 0.71$ です。
+  1 回目が表なら合計も大きくなりやすいので、正の相関があります。
+\end{example}
+
+\begin{theorem}[独立なら共分散は 0][thm:independent-covariance]
+  $X$ と $Y$ が独立なら、
+  \[
+    \E[XY] = \E[X]\,\E[Y], \qquad \Cov(X, Y) = 0.
+  \]
+\end{theorem}
+
+\begin{proof}
+  独立なので $p(x, y) = \Prob(X = x)\,\Prob(Y = y)$ です。よって
+  \begin{align*}
+    \E[XY] &= \sum_{x} \sum_{y} x y\, \Prob(X = x)\,\Prob(Y = y) \\
+    &= \left(\sum_{x} x\, \Prob(X = x)\right) \left(\sum_{y} y\, \Prob(Y = y)\right)
+    = \E[X]\,\E[Y]
+  \end{align*}
+  です（$y$ についての和では $x\,\Prob(X = x)$ が定数なので外に出せます）。
+  これを\cref{prop:covariance-shortcut} に代入すると $\Cov(X, Y) = 0$ です。
+\end{proof}
+
+\begin{exampoint}
+  逆は成り立ちません。共分散が $0$ でも、独立とは限りません。
+  たとえば、$X$ が $-1, 0, 1$ をそれぞれ確率 $1/3$ でとり、$Y = X^2$ とします。
+  $\E[X] = 0$、$\E[XY] = \E[X^3] = (-1 + 0 + 1)/3 = 0$ なので $\Cov(X, Y) = 0$ です。
+  しかし、$Y$ は $X$ で完全に決まるので、独立ではありません
+  （$\Prob(X = 0,\ Y = 1) = 0$ ですが、$\Prob(X = 0)\,\Prob(Y = 1) = \frac13 \cdot \frac23 \neq 0$）。
+  共分散が測るのは直線的な関係だけだからです（\cref{fig:prep-correlation} の右下と同じ）。
+\end{exampoint}
+
+\begin{supplement}[連続型の場合]
+  連続型の 2 つの確率変数では、同時確率分布の代わりに\term{同時確率密度関数}{どうじかくりつみつどかんすう}{joint probability density function} $f(x, y)$ を使います。
+  $(X, Y)$ が平面上の領域 $D$ に入る確率は、$D$ の上での $f(x, y)$ の積分（重積分。体積が確率）で表されます。
+  和を積分に置きかえれば、この節の定義と定理はすべてそのまま成り立ちます。
+  くわしくは数学基礎の部で扱います。
+\end{supplement}
+
+\subsection{和の期待値と分散}
+
+統計では、たくさんの確率変数の和や平均を考えます。
+その期待値と分散は、和の分布を求めなくても計算できます。
+
+\begin{theorem}[和の期待値][thm:expectation-sum]
+  どんな確率変数 $X$、$Y$ と定数 $a$、$b$ についても、
+  \[
+    \E[aX + bY] = a\E[X] + b\E[Y].
+  \]
+  $X$ と $Y$ が独立でなくても成り立つ。
+\end{theorem}
+
+\begin{proof}
+  離散型の場合、$\E[aX + bY] = \sum_x \sum_y (ax + by)\, p(x, y)$ を 2 つに分けます。
+  1 つめは、周辺分布の求め方（\cref{prop:marginal}）より
+  \[
+    \sum_x \sum_y a x\, p(x, y) = a \sum_x x \sum_y p(x, y) = a \sum_x x\, \Prob(X = x) = a\E[X]
+  \]
+  です。2 つめも同じく $b\E[Y]$ になります。
+\end{proof}
+
+\begin{theorem}[和の分散][thm:variance-sum]
+  どんな確率変数 $X$、$Y$ と定数 $a$、$b$ についても、
+  \[
+    \V[aX + bY] = a^2\, \V[X] + b^2\, \V[Y] + 2ab\, \Cov(X, Y).
+  \]
+  特に、$X$ と $Y$ が独立なら
+  \[
+    \V[X + Y] = \V[X] + \V[Y], \qquad \V[X - Y] = \V[X] + \V[Y].
+  \]
+\end{theorem}
+
+\begin{proof}
+  $\mu_X = \E[X]$、$\mu_Y = \E[Y]$ とします。\cref{thm:expectation-sum} より $\E[aX + bY] = a\mu_X + b\mu_Y$ なので、
+  \[
+    \V[aX + bY] = \E\Bigl[\bigl\{a(X - \mu_X) + b(Y - \mu_Y)\bigr\}^2\Bigr]
+  \]
+  です。中かっこの 2 乗を展開し、再び\cref{thm:expectation-sum} を使うと、
+  \[
+    a^2\, \E\bigl[(X - \mu_X)^2\bigr] + b^2\, \E\bigl[(Y - \mu_Y)^2\bigr] + 2ab\, \E\bigl[(X - \mu_X)(Y - \mu_Y)\bigr]
+  \]
+  となり、示す式になります。
+  独立なら $\Cov(X, Y) = 0$（\cref{thm:independent-covariance}）なので、$a = 1$、$b = \pm 1$ とすれば後半の 2 つの式になります。
+\end{proof}
+
+\begin{exampoint}
+  独立なとき、\textbf{差} $X - Y$ の分散も、$\V[X] - \V[Y]$ ではなく $\V[X] + \V[Y]$ です。
+  $b = -1$ でも $b^2 = 1$ だからです。
+  「ばらつくもの同士を引いても、ばらつきは打ち消されず、むしろ増える」と覚えましょう。
+\end{exampoint}
+
+\begin{intuition}
+  独立なときに足し算できるのは\textbf{分散}で、標準偏差ではありません。
+  $\sigma_{X+Y} = \sqrt{\sigma_X^2 + \sigma_Y^2}$ は、直角をはさむ 2 辺が $\sigma_X$、$\sigma_Y$ の直角三角形の斜辺の長さ（三平方の定理）で、$\sigma_X + \sigma_Y$ より小さくなります。
+  独立な 2 つの量では、一方が大きくはずれたときに、もう一方が逆向きにはずれて打ち消し合うこともあるので、ばらつきが単純な足し算ほどは大きくならないのです。
+\end{intuition}
+
+この 2 つの定理をくり返し使うと、$n$ 個の確率変数に広げられます。
+
+\begin{corollary}[$n$ 個の和の期待値と分散][cor:sum-n]
+  確率変数 $X_1, \dots, X_n$ について、
+  \[
+    \E\left[\sum_{i=1}^{n} X_i\right] = \sum_{i=1}^{n} \E[X_i].
+  \]
+  さらに、$X_1, \dots, X_n$ が独立なら、
+  \[
+    \V\left[\sum_{i=1}^{n} X_i\right] = \sum_{i=1}^{n} \V[X_i].
+  \]
+\end{corollary}
+
+\begin{proof}
+  $S_{k} = X_1 + \dots + X_{k}$ とおくと、$S_{k} = S_{k-1} + X_{k}$ です。
+  \cref{thm:expectation-sum} より $\E[S_k] = \E[S_{k-1}] + \E[X_k]$ なので、これを $k = 2, 3, \dots, n$ とくり返せば 1 つめの式になります。
+  $X_1, \dots, X_n$ が独立なら、$S_{k-1}$（$X_1, \dots, X_{k-1}$ だけで決まる）と $X_k$ も独立です。
+  よって\cref{thm:variance-sum} より $\V[S_k] = \V[S_{k-1}] + \V[X_k]$ で、同じようにくり返せば 2 つめの式になります。
+\end{proof}
+
+\begin{merit}
+  和の確率分布を求めるのは大変ですが、その期待値と分散は、1 つ 1 つの期待値と分散を足すだけで求まります。
+  この結果は、\cref{sec:stat-basic-distributions}で二項分布の期待値と分散を求めるときや、
+  \cref{sec:stat-estimation-testing-basics}で「データを増やすと平均の精度がどれだけ上がるか」を調べるときの土台になります。
+\end{merit}
+
+\begin{example}[サイコロ 2 個の目の和][ex:dice-sum]
+  サイコロを 2 個投げ、目を $X$、$Y$ とします。
+  \cref{ex:dice-expectation,ex:dice-variance} より $\E[X] = \E[Y] = 7/2$、$\V[X] = \V[Y] = 35/12$ です。
+  $X$ と $Y$ は独立なので、目の和について
+  \[
+    \E[X + Y] = \frac72 + \frac72 = 7, \qquad \V[X + Y] = \frac{35}{12} + \frac{35}{12} = \frac{35}{6} \approx 5.83
+  \]
+  です。36 通りの目の出方を書き出さなくても求まりました。
+\end{example}
+
+\begin{pycode}[サイコロ 2 個の和のシミュレーション]
+import numpy as np
+
+rng = np.random.default_rng(seed=0)
+x = rng.integers(1, 7, size=100_000)   # 1 個目（1〜6 の整数）
+y = rng.integers(1, 7, size=100_000)   # 2 個目
+s = x + y
+print(s.mean())   # 理論値 7
+print(s.var())    # 理論値 35/6 = 5.833...
+\end{pycode}
+
+\texttt{rng.integers(1, 7)} は「$1$ 以上 $7$ \textbf{未満}」の整数を作るので、サイコロの目 $1$〜$6$ になります。
+
+\begin{pyoutput}
+6.99942
+5.821379663599999
+\end{pyoutput}
+
+\begin{problem}[期待値と分散の計算][prob:linear-combination]
+  $X$ と $Y$ は独立で、$\E[X] = 2$、$\V[X] = 1$、$\E[Y] = 3$、$\V[Y] = 4$ とする。
+  $W = 2X - Y + 1$ の期待値と分散を求めなさい。
+  \tcblower
+  期待値は、\cref{thm:expectation-linear,thm:expectation-sum} より
+  $\E[W] = 2 \times 2 - 3 + 1 = 2$ です。
+  分散は、定数 $1$ を足しても変わらないので（\cref{thm:variance-linear}）、\cref{thm:variance-sum} で $a = 2$、$b = -1$ として
+  $\V[W] = 2^2 \times 1 + (-1)^2 \times 4 = 8$ です。
+\end{problem}
 
 % ---------------------------------------------------------------------
 \section{基本的な確率分布}
