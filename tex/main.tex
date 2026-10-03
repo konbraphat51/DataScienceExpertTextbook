@@ -1,0 +1,41 @@
+% =====================================================================
+%  main.tex : 本書全体
+%    ビルド：cd tex && latexmk        （出力は tex/build/main.pdf）
+%    一部の章だけ作るときは、下の \includeonly のコメントを外す。
+% =====================================================================
+\input{preamble}
+
+% \includeonly{parts/statistics/02-probability}
+
+\hypersetup{
+  pdftitle={統計検定 データサイエンスエキスパート 教科書},
+}
+
+\begin{document}
+
+\frontmatter
+\input{front/title}
+\include{front/preface}
+\tableofcontents
+
+\mainmatter
+
+% ---------------------------------------------------------------------
+\part{統計基礎}
+\label{part:statistics}
+\include{parts/statistics/01-preparation}
+\include{parts/statistics/02-probability}
+\include{parts/statistics/03-inference}
+\include{parts/statistics/04-bayes}
+\include{parts/statistics/05-computational}
+
+% ---------------------------------------------------------------------
+% 以下は今後追加する（範囲表の大項目）
+% \part{数学基礎}
+% \part{計算基礎}
+% \part{モデリング・AI と評価}
+
+\backmatter
+\printindex
+
+\end{document}

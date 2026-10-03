@@ -1,0 +1,95 @@
+\chapter{はじめに}
+
+\section*{この本のねらい}
+
+この本は、統計検定「データサイエンスエキスパート」の出題範囲を、
+\textbf{高校数学と Python の文法だけ}を前提に学べるように書いた教科書です。
+大学で学ぶ数学（行列やガンマ関数など）が必要になる所では、その場で最小限の説明を入れています。
+
+章立ては、試験の出題範囲表に合わせています。
+範囲表の「大項目」を部、「中項目」を章、「小項目」を節としました。
+各節の最初には、範囲表に書かれているキーワードを示しています。
+
+\section*{この本の読み方}
+
+本文の中では、次のような囲みを使います。
+定義・定理・例・例題には、章ごとの通し番号を付けます。
+たとえば「定理 3.2」は、第 3 章の 2 番目の囲みという意味です。
+
+\begingroup
+\renewcommand{\thechapter}{3}  % 見本として「第3章」の番号を表示する
+
+\begin{definition}
+  言葉の意味を決めるものです。後の議論はすべてここから始まります。
+\end{definition}
+
+\begin{theorem}
+  定義から導かれる、大事な性質です。この本では、定理を必ず\textbf{証明}（導出）します。
+\end{theorem}
+
+\begin{intuition}
+  数式や定理が何を言っているのかを、言葉や図で説明します。
+\end{intuition}
+
+\begin{merit}
+  その定理や数式を知っていると、何が楽になるのか、何ができるようになるのかを説明します。
+  式を覚えるより先に、ここを読んでください。
+\end{merit}
+
+\begin{example}
+  具体的な数値や場面で、定義や定理を確かめます。
+\end{example}
+
+\begin{problem}
+  自分で手を動かして解いてみる問題です。
+  \tcblower
+  解答は、点線の下にあります。
+\end{problem}
+\endgroup
+
+\begin{mathnote}
+  高校数学を超える道具を、その場で必要なだけ説明します。
+  くわしくは「数学基礎」の部で扱います。
+\end{mathnote}
+
+\begin{supplement}
+  範囲表には書かれていませんが、後の内容を理解するために必要な話です。
+\end{supplement}
+
+\begin{reference}
+  発展的な内容です。名前と大まかな意味を知っていれば十分です。
+\end{reference}
+
+\begin{exampoint}
+  試験でよく問われる点や、まちがえやすい点です。
+\end{exampoint}
+
+Python のコードは次のように示します。
+コードはすべて \texttt{numpy} などの基本的なライブラリだけで動くようにしています。
+
+\begin{pycode}
+import numpy as np
+print(np.mean([1, 2, 3]))
+\end{pycode}
+
+\begin{pyoutput}
+2.0
+\end{pyoutput}
+
+\section*{記号について}
+
+\begin{center}
+  \begin{tabular}{ll}
+    \toprule
+    記号 & 意味 \\
+    \midrule
+    $\Prob(A)$ & 事象 $A$ が起こる確率 \\
+    $\E[X]$, $\V[X]$ & 確率変数 $X$ の期待値、分散 \\
+    $\Cov(X,Y)$ & $X$ と $Y$ の共分散 \\
+    $X \sim \Normal(\mu,\sigma^2)$ & $X$ が平均 $\mu$、分散 $\sigma^2$ の正規分布にしたがう \\
+    $X_1,\dots,X_n \iid F$ & $X_1,\dots,X_n$ が互いに独立に、同じ分布 $F$ にしたがう \\
+    $\bX$ & 標本平均 $\frac{1}{n}\sum_{i=1}^n X_i$ \\
+    $\estim{\theta}$ & パラメータ $\theta$ の推定量 \\
+    \bottomrule
+  \end{tabular}
+\end{center}
