@@ -39,7 +39,9 @@
   - 各節の最初に `\keywords{...}`（範囲表キーワード）
   - 〔数学メモ〕`mathnote`、〔補足〕`supplement`、〔参考〕`reference`
 - 参照は `\cref{...}`。ラベルの接頭辞：`part: chap: sec: def: thm: prop: lem: cor: ex: prob: eq: fig: tab:`
-- 用語の初出は `\term{用語}{よみ}`（太字＋索引）
+- 用語の初出は `\term{用語}{よみ}{英語}`（太字＋英語訳＋索引）。例：`\term{積率母関数}{せきりつぼかんすう}{moment generating function}` → **積率母関数**（moment generating function）
+  - 英語訳は必ず付ける（ユーザーの指示）。英語は小文字始まり、略語があれば `moment generating function, MGF` のように続ける
+  - 英語訳が本当にない場合だけ 3 つめを `{}` にする（括弧ごと省かれる）
 - 記号は `textbook-math.sty` のマクロを使う（`\E[X]`、`\V[X]`、`\Cov(X,Y)`、`\Normal(\mu,\sigma^2)`、`\dd x` など）。新しい記号もここに足す
 
 ### 作業環境の注意
