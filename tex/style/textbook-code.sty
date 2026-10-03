@@ -38,11 +38,12 @@
     fonttitle=\sffamily\gtfamily\bfseries\small, coltitle=tbExample,
     colbacktitle=tbCode, titlerule=0.4pt, titlerule style={tbRef!40},
   },
+  % 空でなければタイトルを付ける（キーの並びの中に \ifx を直接書くと止まるため）
+  tb/codetitle/.code={\ifx\relax#1\relax\else\pgfkeysalso{title={#1}}\fi},
 }
 
 \newtcblisting{pycode}[1][]{
-  tb/code,
-  \ifx\relax#1\relax\else title={#1},\fi
+  tb/code, tb/codetitle={#1},
 }
 
 \newtcbinputlisting{\pyfile}[2][]{

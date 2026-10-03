@@ -98,6 +98,18 @@
 \setcounter{tocdepth}{1}
 
 % ---------------------------------------------------------------------
+%  目次（部・章を太字にし、各行の見出し文字の頭をそろえる）
+%  \@dottedtocline{レベル}{字下げ}{番号の幅}{見出し}{ページ}
+% ---------------------------------------------------------------------
+\renewcommand*{\l@part}[2]{%
+  \addvspace{1.2\baselineskip}%
+  {\sffamily\gtfamily\bfseries\large\color{tbMain}\@dottedtocline{-1}{0pt}{4\zw}{#1}{#2}}}
+\renewcommand*{\l@chapter}[2]{%
+  \addvspace{0.5\baselineskip}%
+  {\sffamily\gtfamily\bfseries\@dottedtocline{0}{0pt}{4\zw}{#1}{#2}}}
+\renewcommand*{\l@section}{\@dottedtocline{1}{0pt}{3\zw}}
+
+% ---------------------------------------------------------------------
 %  柱とノンブル（偶数ページ：章、奇数ページ：節）
 % ---------------------------------------------------------------------
 \NewPageStyle{tbmain}{
