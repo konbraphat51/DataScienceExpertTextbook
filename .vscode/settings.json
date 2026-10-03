@@ -1,0 +1,17 @@
+{
+  "latex-workshop.latex.recipes": [
+    { "name": "latexmk (lualatex)", "tools": ["latexmk"] }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "latexmk",
+      "args": ["%DOCFILE%"],
+      "env": {}
+    }
+  ],
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.rootFile.useSubFile": false,
+  "latex-workshop.latex.autoBuild.run": "never",
+  "files.associations": { "*.sty": "latex" }
+}

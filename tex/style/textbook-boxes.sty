@@ -1,0 +1,184 @@
+% =====================================================================
+%  textbook-boxes.sty : 本文で使う囲みの環境
+%
+%  ・番号付き（章ごとの通し番号を共有：定義 2.1 → 定理 2.2 → 例 2.3）
+%      definition   定義         \begin{definition}[名前] ... \end{definition}
+%      theorem      定理
+%      proposition  命題
+%      lemma        補題
+%      corollary    系
+%      example      例
+%      problem      例題         問題 \tcblower 解答
+%  ・番号なし
+%      proof        証明（amsthm。最後に □ が付く）
+%      merit        ここが嬉しい（定理・数式の「何が嬉しいか」）
+%      intuition    イメージ（定理・数式の意味を言葉で）
+%      mathnote     〔数学メモ〕高校数学を超える道具の最小限の説明
+%      supplement   〔補足〕範囲表外だが理解に必要な内容
+%      reference    〔参考〕名前を知っておけば十分な発展的内容
+%      exampoint    試験のポイント
+%      chaptergoal  この章の目標（章の最初）
+%      chaptersummary この章のまとめ（章の最後）
+%  ・コマンド
+%      \keywords{...}   範囲表キーワード（各節の最初）
+%
+%  番号付きの環境は \begin{theorem}[名前][thm:xxx] のように、2つめの [] にラベルを書く
+%  （名前なしなら \begin{theorem}[][thm:xxx]）。参照は \cref{thm:xxx}。
+%  ※ 囲みの中で \label を使うと、節の番号を拾ってしまうので使わない。
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook-boxes}[2026/10/03]
+
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{amsthm}
+
+% ---------------------------------------------------------------------
+%  共通スタイル
+% ---------------------------------------------------------------------
+\tcbset{
+  tb/base/.style={
+    enhanced, breakable,
+    before skip=0.8\baselineskip, after skip=0.8\baselineskip,
+    left=2mm, right=2mm, top=1mm, bottom=1mm,
+    fonttitle=\sffamily\gtfamily\bfseries,
+  },
+  % 色付きの枠と見出し帯（定理など、重要度の高いもの）
+  tb/framed/.style={
+    tb/base,
+    colframe=#1, colback=#1!4, coltitle=white, colbacktitle=#1,
+    boxrule=0.6pt, arc=1mm, titlerule=0pt,
+  },
+  % 左に太い線（定義・例・メモなど）
+  tb/leftbar/.style={
+    tb/base,
+    frame hidden, interior hidden, sharp corners,
+    colback=white, coltitle=#1,
+    borderline west={2pt}{0pt}{#1},
+    detach title, before upper={\tcbtitle\par\smallskip},
+    left=3mm,
+  },
+  % 左の線 + 薄い背景（〔数学メモ〕など、本筋から少し外れるもの）
+  tb/note/.style={
+    tb/base,
+    frame hidden, sharp corners,
+    colback=#1!6, coltitle=#1,
+    borderline west={2pt}{0pt}{#1},
+    detach title, before upper={\tcbtitle\par\smallskip},
+    left=3mm, fontupper=\small,
+  },
+}
+
+% タイトルの「（名前）」部分
+\ExplSyntaxOn
+\cs_new:Npn \tb@name #1 { \IfValueT {#1} { \tl_if_blank:nF {#1} { （#1） } } }
+\ExplSyntaxOff
+% 2つめの省略可能引数をラベルにする：\begin{theorem}[名前][thm:xxx]
+\tcbset{tb/label/.code={\IfValueT{#1}{\pgfkeysalso{label={#1}}}}}
+
+% ---------------------------------------------------------------------
+%  番号付きの環境（共通カウンタ tbthm、章ごとにリセット）
+% ---------------------------------------------------------------------
+\NewTColorBox[auto counter, number within=chapter, crefname={定義}{定義}]
+  {definition}{ o o }{
+  tb/label={#2},
+  tb/leftbar=tbMain,
+  title={定義~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={定理}{定理}]
+  {theorem}{ o o }{
+  tb/label={#2},
+  tb/framed=tbTheorem,
+  title={定理~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={命題}{命題}]
+  {proposition}{ o o }{
+  tb/label={#2},
+  tb/framed=tbTheorem,
+  title={命題~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={補題}{補題}]
+  {lemma}{ o o }{
+  tb/label={#2},
+  tb/framed=tbTheorem,
+  title={補題~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={系}{系}]
+  {corollary}{ o o }{
+  tb/label={#2},
+  tb/framed=tbTheorem,
+  title={系~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={例}{例}]
+  {example}{ o o }{
+  tb/label={#2},
+  tb/leftbar=tbExample,
+  title={例~\thetcbcounter\tb@name{#1}},
+}
+\NewTColorBox[use counter from=definition, crefname={例題}{例題}]
+  {problem}{ o o }{
+  tb/label={#2},
+  tb/framed=tbExample,
+  colback=white,
+  title={例題~\thetcbcounter\tb@name{#1}},
+  segmentation style={dashed, draw=tbExample, line width=0.5pt},
+  before lower={{\sffamily\gtfamily\bfseries\color{tbExample}解答}\quad},
+}
+
+% ---------------------------------------------------------------------
+%  証明
+% ---------------------------------------------------------------------
+\renewcommand{\proofname}{証明}
+\renewenvironment{proof}[1][\proofname]{%
+  \par\pushQED{\qed}\normalfont
+  \topsep6\p@\@plus6\p@\relax
+  \trivlist\item[\hskip\labelsep{\sffamily\gtfamily\bfseries\color{tbTheorem}#1}\quad]\ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+}
+
+% ---------------------------------------------------------------------
+%  番号なしの囲み
+% ---------------------------------------------------------------------
+\NewTColorBox{merit}{ o }{
+  tb/framed=tbMerit, colback=tbMerit!5,
+  title={ここが嬉しい\tb@name{#1}},
+}
+\NewTColorBox{intuition}{ o }{
+  tb/framed=tbImage, colback=tbImage!5,
+  title={イメージ\tb@name{#1}},
+}
+\NewTColorBox{mathnote}{ o }{
+  tb/note=tbMath,
+  title={〔数学メモ〕\IfValueT{#1}{#1}},
+}
+\NewTColorBox{supplement}{ o }{
+  tb/note=tbSupp,
+  title={〔補足〕\IfValueT{#1}{#1}},
+}
+\NewTColorBox{reference}{ o }{
+  tb/note=tbRef,
+  title={〔参考〕\IfValueT{#1}{#1}},
+}
+\NewTColorBox{exampoint}{ o }{
+  tb/note=tbTheorem,
+  title={試験のポイント\tb@name{#1}},
+}
+\NewTColorBox{chaptergoal}{}{
+  tb/framed=tbMain, colback=tbMain!4,
+  title={この章の目標},
+}
+\NewTColorBox{chaptersummary}{}{
+  tb/framed=tbMain, colback=tbMain!4,
+  title={この章のまとめ},
+}
+
+% ---------------------------------------------------------------------
+%  範囲表キーワード（各節の最初に置く）
+% ---------------------------------------------------------------------
+\newcommand{\keywords}[1]{%
+  \begin{tcolorbox}[tb/base, frame hidden, sharp corners, colback=tbMain!6,
+                    top=0.6mm, bottom=0.6mm, fontupper=\small]
+    {\sffamily\gtfamily\bfseries\color{tbMain}範囲表キーワード}\quad #1
+  \end{tcolorbox}}
+
+\endinput

@@ -1,0 +1,53 @@
+% =====================================================================
+%  textbook-ref.sty : 相互参照（hyperref・cleveref）と索引
+%
+%  参照は \cref{key} で書く。種類に応じて次のように出る。
+%    第 3 章 / 3.2 節 / 式 (3.4) / 図 3.1 / 表 3.1 / 定理 3.5 / 例 3.6
+%  用語の初出は \term{積率母関数}{せきりつぼかんすう} と書く
+%  （太字になり、索引に読みの順で載る）。
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook-ref}[2026/10/03]
+
+\RequirePackage{amsthm}   % cleveref より前に読み込む必要がある
+
+% ---------------------------------------------------------------------
+%  索引（latexmk が upmendex を呼ぶ。設定は .latexmkrc）
+% ---------------------------------------------------------------------
+\RequirePackage{imakeidx}
+\makeindex[title=索引, intoc, columns=2]
+
+\newcommand{\term}[2]{{\sffamily\gtfamily\bfseries #1}\index{#2@#1}}
+
+% ---------------------------------------------------------------------
+%  ハイパーリンク
+% ---------------------------------------------------------------------
+\RequirePackage[bookmarksnumbered, pdfusetitle,
+  colorlinks, linkcolor=tbMain, citecolor=tbMain, urlcolor=tbMain]{hyperref}
+
+% ---------------------------------------------------------------------
+%  cleveref（日本語の書式）
+% ---------------------------------------------------------------------
+\RequirePackage[nameinlink, noabbrev]{cleveref}
+\crefformat{part}{第#2#1#3部}
+\crefformat{chapter}{第#2#1#3章}
+\crefformat{section}{#2#1#3節}
+\crefformat{subsection}{#2#1#3項}
+\crefformat{equation}{式~#2(#1)#3}
+\crefformat{figure}{図~#2#1#3}
+\crefformat{table}{表~#2#1#3}
+\crefformat{lstlisting}{コード~#2#1#3}
+\Crefformat{part}{第#2#1#3部}
+\Crefformat{chapter}{第#2#1#3章}
+\Crefformat{section}{#2#1#3節}
+\Crefformat{subsection}{#2#1#3項}
+\Crefformat{equation}{式~#2(#1)#3}
+\Crefformat{figure}{図~#2#1#3}
+\Crefformat{table}{表~#2#1#3}
+\Crefformat{lstlisting}{コード~#2#1#3}
+\newcommand{\crefrangeconjunction}{〜}
+\newcommand{\crefpairconjunction}{と}
+\newcommand{\crefmiddleconjunction}{、}
+\newcommand{\creflastconjunction}{、}
+
+\endinput

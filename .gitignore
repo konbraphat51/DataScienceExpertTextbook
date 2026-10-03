@@ -1,0 +1,20 @@
+# LaTeX build output
+tex/build/
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.idx
+*.ind
+*.ilg
+*.bbl
+*.blg
+
+# Python
+.venv/
+__pycache__/
+*.pyc

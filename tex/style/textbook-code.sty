@@ -1,0 +1,62 @@
+% =====================================================================
+%  textbook-code.sty : Python コードの表示
+%
+%    \begin{pycode}[タイトル]          本文に直接書くコード
+%      print("hello")
+%    \end{pycode}
+%    \pyfile[タイトル]{../code/xxx.py}  ファイルからコードを読み込む
+%    \begin{pyoutput} ... \end{pyoutput} 実行結果
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook-code}[2026/10/03]
+
+\RequirePackage{listings}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{listings}
+
+\lstdefinestyle{tbpython}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{tbMain}\bfseries,
+  commentstyle=\color{tbMerit}\itshape,
+  stringstyle=\color{tbTheorem},
+  showstringspaces=false,
+  columns=fullflexible, keepspaces=true,
+  numbers=left, numberstyle=\tiny\color{tbRef}, numbersep=6pt,
+  breaklines=true, breakatwhitespace=true,
+  tabsize=4,
+  morekeywords={True,False,None,as,with,yield,lambda},
+}
+
+\tcbset{
+  tb/code/.style={
+    enhanced, breakable, listing only,
+    listing options={style=tbpython},
+    colback=tbCode, colframe=tbRef!40, boxrule=0.4pt, arc=1mm,
+    left=6mm, right=2mm, top=1mm, bottom=1mm,
+    before skip=0.8\baselineskip, after skip=0.8\baselineskip,
+    fonttitle=\sffamily\gtfamily\bfseries\small, coltitle=tbExample,
+    colbacktitle=tbCode, titlerule=0.4pt, titlerule style={tbRef!40},
+  },
+}
+
+\newtcblisting{pycode}[1][]{
+  tb/code,
+  \ifx\relax#1\relax\else title={#1},\fi
+}
+
+\newtcbinputlisting{\pyfile}[2][]{
+  tb/code, listing file={#2},
+  title={\ifx\relax#1\relax\detokenize{#2}\else #1\fi},
+}
+
+\newtcblisting{pyoutput}{
+  enhanced, breakable, listing only,
+  listing options={basicstyle=\ttfamily\small, columns=fullflexible, keepspaces=true},
+  colback=white, colframe=tbRef!40, boxrule=0.4pt, sharp corners,
+  left=2mm, right=2mm, top=0.5mm, bottom=0.5mm,
+  borderline west={2pt}{0pt}{tbRef!60},
+  before skip=0.4\baselineskip, after skip=0.8\baselineskip,
+}
+
+\endinput

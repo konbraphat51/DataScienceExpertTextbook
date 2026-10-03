@@ -1,0 +1,20 @@
+% =====================================================================
+%  textbook.sty
+%  本書全体のスタイル。main.tex と sample.tex から読み込む。
+%    - textbook-layout.sty : 紙面・見出し・柱・フォント
+%    - textbook-math.sty   : 数式用の記号とマクロ
+%    - textbook-ref.sty    : 相互参照（hyperref・cleveref）と索引
+%    - textbook-boxes.sty  : 定義・定理・例・〔数学メモ〕などの囲み
+%    - textbook-code.sty   : Python コードの表示
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook}[2026/10/03 DS Expert textbook style]
+
+\RequirePackage{style/textbook-layout}
+\RequirePackage{style/textbook-math}
+% 相互参照（囲みの環境が cleveref を使うので、その前に読み込む）
+\RequirePackage{style/textbook-ref}
+\RequirePackage{style/textbook-boxes}
+\RequirePackage{style/textbook-code}
+
+\endinput

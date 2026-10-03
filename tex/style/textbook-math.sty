@@ -1,0 +1,69 @@
+% =====================================================================
+%  textbook-math.sty : 数式用の記号とマクロ
+%  本書の記号はここで一元管理する（本文で直接 \mathrm{E} などと書かない）
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook-math}[2026/10/03]
+
+\RequirePackage{amsmath,amssymb,mathtools}
+\RequirePackage{bm}
+
+% ---------------------------------------------------------------------
+%  集合・数
+% ---------------------------------------------------------------------
+\newcommand{\R}{\mathbb{R}}          % 実数全体
+\newcommand{\N}{\mathbb{N}}          % 自然数全体
+\newcommand{\Z}{\mathbb{Z}}          % 整数全体
+
+% ---------------------------------------------------------------------
+%  確率・統計
+%    使い方：\E[X]、\V[X]、\Cov(X,Y)、\Prob(A)
+% ---------------------------------------------------------------------
+\newcommand{\Prob}{P}                        % 確率
+\newcommand{\E}{\mathrm{E}}                  % 期待値
+\newcommand{\V}{\mathrm{V}}                  % 分散
+\newcommand{\Cov}{\mathrm{Cov}}              % 共分散
+\newcommand{\Corr}{\mathrm{Corr}}            % 相関係数
+\newcommand{\SE}{\mathrm{SE}}                % 標準誤差
+\newcommand{\MSE}{\mathrm{MSE}}              % 平均二乗誤差
+\newcommand{\Bias}{\mathrm{Bias}}            % バイアス
+\newcommand{\given}{\mathrel{}\middle|\mathrel{}} % 条件付き：\Prob\left(A \given B\right)
+\newcommand{\indep}{\mathrel{\perp\!\!\!\perp}}   % 独立
+\newcommand{\iid}{\overset{\text{i.i.d.}}{\sim}}  % 独立に同じ分布にしたがう
+\newcommand{\convp}{\xrightarrow{\;\mathrm{p}\;}} % 確率収束
+\newcommand{\convd}{\xrightarrow{\;\mathrm{d}\;}} % 分布収束
+\newcommand{\estim}[1]{\hat{#1}}             % 推定量
+\newcommand{\bX}{\bar{X}}                    % 標本平均
+
+% 確率分布の名前（立体で書く）
+\newcommand{\Normal}{\mathrm{N}}             % 正規分布 \Normal(\mu,\sigma^2)
+\newcommand{\Bin}{\mathrm{Bin}}              % 二項分布
+\newcommand{\Po}{\mathrm{Po}}                % ポアソン分布
+\newcommand{\Geo}{\mathrm{Geo}}              % 幾何分布
+\newcommand{\NB}{\mathrm{NB}}                % 負の二項分布
+\newcommand{\HG}{\mathrm{HG}}                % 超幾何分布
+\newcommand{\Unif}{\mathrm{U}}               % 一様分布
+\newcommand{\Ex}{\mathrm{Exp}}               % 指数分布
+\newcommand{\Ga}{\mathrm{Ga}}                % ガンマ分布
+\newcommand{\Be}{\mathrm{Beta}}              % ベータ分布
+\newcommand{\LN}{\mathrm{LN}}                % 対数正規分布
+\newcommand{\Chisq}{\chi^2}                  % カイ二乗分布
+\newcommand{\tdist}{\mathrm{t}}              % t 分布
+\newcommand{\Fdist}{\mathrm{F}}              % F 分布
+
+% ---------------------------------------------------------------------
+%  解析・線形代数
+% ---------------------------------------------------------------------
+\newcommand{\dd}{\mathop{}\!\mathrm{d}}      % 積分の d：\int f(x)\dd x
+\newcommand{\diff}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\pdiff}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\T}{\top}                        % 転置：A^\T
+\newcommand{\vect}[1]{\bm{#1}}               % ベクトル：\vect{x}
+\newcommand{\mat}[1]{\bm{#1}}                % 行列：\mat{A}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\tr}{tr}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\endinput

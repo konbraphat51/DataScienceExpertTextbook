@@ -1,0 +1,123 @@
+% =====================================================================
+%  textbook-layout.sty : 紙面・見出し・柱・フォント
+%  前提：\documentclass[book,paper=b5,...]{jlreq} を LuaLaTeX で使う
+% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/textbook-layout}[2026/10/03]
+
+% ---------------------------------------------------------------------
+%  フォント（和文：原ノ味、欧文：Latin Modern）
+% ---------------------------------------------------------------------
+\RequirePackage[haranoaji,deluxe,nfssonly]{luatexja-preset}
+\RequirePackage{lmodern}
+
+% ---------------------------------------------------------------------
+%  色（図の配色 scripts/figures/figstyle.py と合わせる）
+% ---------------------------------------------------------------------
+\RequirePackage[dvipsnames]{xcolor}
+\definecolor{tbMain}{HTML}{1F4E79}     % 見出し・定義
+\definecolor{tbTheorem}{HTML}{B4532A}  % 定理
+\definecolor{tbExample}{HTML}{5B6770}  % 例・例題
+\definecolor{tbMerit}{HTML}{2E7D32}    % 何が嬉しいか
+\definecolor{tbImage}{HTML}{6A4C93}    % イメージ
+\definecolor{tbMath}{HTML}{00838F}     % 〔数学メモ〕
+\definecolor{tbSupp}{HTML}{8D6E00}     % 〔補足〕
+\definecolor{tbRef}{HTML}{757575}      % 〔参考〕
+\definecolor{tbCode}{HTML}{F5F7FA}     % コードの背景
+
+% ---------------------------------------------------------------------
+%  図・表・リスト
+% ---------------------------------------------------------------------
+\RequirePackage{graphicx}
+\graphicspath{{figures/}}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{array}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing,shapes.geometric,patterns}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18, every axis/.append style={font=\small}}
+\usepgfplotslibrary{fillbetween}
+\RequirePackage{enumitem}
+\setlist{itemsep=0.2\baselineskip,topsep=0.4\baselineskip}
+\RequirePackage{caption}
+\captionsetup{font=small,labelfont={bf,color=tbMain},labelsep=quad}
+
+% 図番号・表番号・式番号は章ごと（例：図 3.2、式 (3.2)）
+\RequirePackage{amsmath}
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+
+% ---------------------------------------------------------------------
+%  見出し
+%    \part    = 大項目（統計基礎 など）
+%    \chapter = 中項目
+%    \section = 小項目
+%    \subsection = 説明内容のまとまり
+% ---------------------------------------------------------------------
+\renewcommand{\thepart}{\Roman{part}}
+
+\ModifyHeading{part}{
+  label_format={第\thepart 部},
+  format={\vspace*{0.25\textheight}\begin{center}%
+    {\sffamily\gtfamily\bfseries\Large#1}\par\vspace{1.5\baselineskip}%
+    {\sffamily\gtfamily\bfseries\Huge\color{tbMain}#2}\par\vspace{1\baselineskip}%
+    {\color{tbMain}\rule{0.5\textwidth}{1pt}}\end{center}\vfill}
+}
+
+\ModifyHeading{chapter}{
+  label_format={第\thechapter 章},
+  format={\vspace*{1\baselineskip}%
+    {\raggedright{\sffamily\gtfamily\bfseries\large\color{tbMain}#1}\par\vspace{0.4\baselineskip}%
+     \sffamily\gtfamily\bfseries\huge#2\par}%
+    \vspace{0.3\baselineskip}\noindent{\color{tbMain}\rule{\linewidth}{1.2pt}}\par
+    \vspace{1.5\baselineskip}}
+}
+
+\ModifyHeading{section}{
+  font={\sffamily\gtfamily\bfseries\Large},
+  label_format={\texorpdfstring{{\color{tbMain}\thesection}}{\thesection}},
+  after_label_space=1\zw,
+  before_lines={1.5},after_lines={0.5},
+}
+
+\ModifyHeading{subsection}{
+  font={\sffamily\gtfamily\bfseries\large},
+  label_format={\texorpdfstring{{\color{tbMain}\thesubsection}}{\thesubsection}},
+  after_label_space=1\zw,
+  before_lines={1},after_lines={0.25},
+}
+
+\ModifyHeading{subsubsection}{
+  font={\sffamily\gtfamily\bfseries},
+  label_format={\texorpdfstring{{\color{tbMain}\textbullet}}{}},
+  after_label_space=0.5\zw,
+}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+% ---------------------------------------------------------------------
+%  柱とノンブル（偶数ページ：章、奇数ページ：節）
+% ---------------------------------------------------------------------
+\NewPageStyle{tbmain}{
+  running_head_position=top-right,  % 奇数ページは右、偶数ページは左（小口側）
+  nombre_position=bottom-center,
+  odd_running_head=_section,
+  even_running_head=_chapter,
+  running_head_font=\small\sffamily\gtfamily\color{tbExample},
+  nombre_font=\small,
+}
+\pagestyle{tbmain}
+
+% 章・部の最初のページは柱なし（ノンブルのみ）
+\NewPageStyle{tbopening}{
+  nombre_position=bottom-center,
+  nombre_font=\small,
+}
+\ModifyHeading{chapter}{pagestyle=tbopening}
+
+% 見開きの調整で入る白ページには柱を付けない
+\RequirePackage{emptypage}
+
+\endinput
