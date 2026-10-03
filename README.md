@@ -28,11 +28,18 @@ uv run scripts/figures/build_all.py normal    # ファイル名に normal を含
 `scripts/figures/<名前>.py` が `tex/figures/<名前>.pdf` を作ります。
 共通の色・フォント・大きさは `scripts/figures/figstyle.py` にまとめています。
 
+数表（標準正規分布表など）は `scripts/tables/` のスクリプトで作ります。
+
+```sh
+uv run scripts/tables/normal_table.py         # → tex/tables/normal-upper.tex
+```
+
 ## ディレクトリ構成
 
 ```
 Docs/                     範囲表（PDF）とセクション構成案
 scripts/figures/          図を作る Python スクリプト
+scripts/tables/           数表（TeX の表）を作る Python スクリプト
 tex/
   main.tex                本文（部・章をここで \include する）
   sample.tex              レイアウト見本（すべての囲みを一度ずつ使う）
@@ -40,6 +47,7 @@ tex/
   front/                  扉・はじめに
   parts/statistics/       第 I 部 統計基礎（1 章 = 1 ファイル）
   figures/                図（scripts/figures/ から生成した PDF）
+  tables/                 数表（scripts/tables/ から生成した TeX）
   style/                  スタイルファイル
     textbook-layout.sty   紙面・見出し・柱・目次・色
     textbook-math.sty     数式用の記号（\E, \V, \Normal など）

@@ -221,7 +221,7 @@ $\sum$ の計算は、次の 3 つの規則でほとんど済みます。
   z_i = \frac{x_i - \bar{x}}{s_x}
 \]
 は、平均 $0$、標準偏差 $1$ になります。
-この変換を\term{標準化}{ひょうじゅんか}{standardization}といい、$z_i$ を \term{$z$ スコア}{zすこあ}{$z$-score}といいます。
+この変換を\term{標準化}{ひょうじゅんか}{standardization}といい、$z_i$ を \term{$z$ スコア}{ぜっとすこあ}{$z$-score}といいます。
 標準化すると、単位や平均点がちがうデータどうしを、同じものさしで比べられます。
 
 \begin{example}[偏差値][ex:hensachi]
@@ -1576,9 +1576,642 @@ print(s.var())    # 理論値 35/6 = 5.833...
 \section{基本的な確率分布}
 \label{sec:stat-basic-distributions}
 
-% TODO: 離散型：ベルヌーイ分布、二項分布、ポアソン分布、幾何分布
-% TODO: 連続型：一様分布、指数分布、正規分布
-% TODO: 標準化と標準正規分布表の使い方
+世の中の偶然には、よく似た形の確率分布がくり返し現れます。
+そのような分布には名前がついていて、性質がよく調べられています。
+この節では、もっとも基本的な 7 つの分布を学びます。
+いずれも、確率分布の形を決める少数の定数をもちます。
+この定数を\term{パラメータ}{ぱらめーた}{parameter}といいます。
+
+\subsection{離散型の分布}
+
+\subsubsection*{ベルヌーイ分布}
+
+コインの表・裏、試験の合格・不合格のように、結果が 2 通りしかない試行を\term{ベルヌーイ試行}{べるぬーいしこう}{Bernoulli trial}といいます。
+一方の結果を「成功」、もう一方を「失敗」と呼びます。
+
+\begin{definition}[ベルヌーイ分布][def:bernoulli]
+  確率変数 $X$ が $1$（成功）を確率 $p$、$0$（失敗）を確率 $1 - p$ でとるとき、
+  $X$ はパラメータ $p$ の\term{ベルヌーイ分布}{べるぬーいぶんぷ}{Bernoulli distribution}にしたがうといい、$X \sim \Bern(p)$ と書く。
+\end{definition}
+
+記号「$\sim$」は「左の確率変数が、右の分布にしたがう」という意味です。
+
+\begin{proposition}[ベルヌーイ分布の期待値と分散][prop:bernoulli-moments]
+  $X \sim \Bern(p)$ のとき、$\E[X] = p$、$\V[X] = p(1 - p)$。
+\end{proposition}
+
+\begin{proof}
+  $\E[X] = 1 \cdot p + 0 \cdot (1 - p) = p$ です。
+  $X^2$ は $X$ と同じ値（$1^2 = 1$、$0^2 = 0$）をとるので $\E[X^2] = p$ です。
+  \cref{thm:variance-shortcut} より $\V[X] = p - p^2 = p(1 - p)$ です。
+\end{proof}
+
+分散 $p(1 - p)$ は $p = 1/2$ のときに最大になります。
+成功と失敗が五分五分のときに、結果がもっとも予想しにくい、ということです。
+
+\subsubsection*{二項分布}
+
+\begin{definition}[二項分布][def:binomial]
+  成功の確率が $p$ のベルヌーイ試行を、独立に $n$ 回くり返したときの成功の回数を $X$ とする。
+  $X$ の確率分布を、パラメータ $n$、$p$ の\term{二項分布}{にこうぶんぷ}{binomial distribution}といい、$X \sim \Bin(n, p)$ と書く。
+\end{definition}
+
+\begin{theorem}[二項分布の確率関数][thm:binomial-pmf]
+  $X \sim \Bin(n, p)$ のとき、$k = 0, 1, \dots, n$ について
+  \[
+    \Prob(X = k) = \binom{n}{k} p^k (1 - p)^{n-k}.
+  \]
+  ここで $\binom{n}{k} = {}_n\mathrm{C}_k = \dfrac{n!}{k!\,(n-k)!}$ は、$n$ 個から $k$ 個を選ぶ組合せの数である。
+\end{theorem}
+
+\begin{proof}
+  たとえば「成功、成功、失敗、\dots」のように、$n$ 回のうちどの回が成功かを 1 つ決めた結果を考えます。
+  成功が $k$ 回、失敗が $n - k$ 回なら、試行は独立なので、その確率は $p^k (1 - p)^{n-k}$ です。
+  $n$ 回のうち成功する $k$ 回の選び方は $\binom{n}{k}$ 通りあり、これらは互いに排反です。
+  よって、それらの確率を足して $\binom{n}{k} p^k (1 - p)^{n-k}$ です。
+\end{proof}
+
+確率の合計が $1$ になることは、二項定理 $\sum_{k=0}^{n} \binom{n}{k} p^k (1-p)^{n-k} = \bigl(p + (1 - p)\bigr)^n = 1$ から分かります。
+「二項分布」という名前は、この二項定理に由来します。
+
+\begin{theorem}[二項分布の期待値と分散][thm:binomial-moments]
+  $X \sim \Bin(n, p)$ のとき、
+  \[
+    \E[X] = np, \qquad \V[X] = np(1 - p).
+  \]
+\end{theorem}
+
+\begin{proof}
+  $i$ 回目の試行が成功なら $1$、失敗なら $0$ をとる確率変数を $X_i$ とします。
+  $X_i \sim \Bern(p)$ で、$X_1, \dots, X_n$ は独立です。
+  成功の回数は $X = X_1 + X_2 + \dots + X_n$ と書けるので、\cref{cor:sum-n} と\cref{prop:bernoulli-moments} より
+  \[
+    \E[X] = \sum_{i=1}^{n} \E[X_i] = np, \qquad \V[X] = \sum_{i=1}^{n} \V[X_i] = np(1 - p)
+  \]
+  です。
+\end{proof}
+
+\begin{merit}
+  定義どおりに $\E[X] = \sum_{k=0}^{n} k \binom{n}{k} p^k (1-p)^{n-k}$ を計算するのは大変です。
+  「二項分布はベルヌーイ分布の和」と見ることで、和の期待値と分散の性質（\cref{cor:sum-n}）を使い、ほぼ計算なしで答えが出ます。
+  複雑な確率変数を、簡単な確率変数の和に分解するのは、統計でよく使う考え方です。
+\end{merit}
+
+\begin{example}[コイン投げとフリースロー][ex:binomial]
+  \begin{itemize}
+    \item コインを 10 回投げて、表がちょうど 7 回出る確率は
+      $\binom{10}{7} (1/2)^{7} (1/2)^{3} = 120/1024 \approx 0.117$ です。
+      表の回数の期待値は $10 \times 0.5 = 5$ 回、分散は $10 \times 0.5 \times 0.5 = 2.5$ です。
+    \item 成功率 $0.8$ の選手がフリースローを 5 回打つとき、4 回以上成功する確率は
+      \[
+        \binom{5}{4} 0.8^4 \times 0.2 + \binom{5}{5} 0.8^5 = 0.4096 + 0.32768 \approx 0.737
+      \]
+      です。
+  \end{itemize}
+\end{example}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_discrete.pdf}
+  \caption{離散型の分布の確率関数。左から二項分布、ポアソン分布、幾何分布}
+  \label{fig:prep-discrete}
+\end{figure}
+
+二項分布のグラフは、$k = np$ のあたりを山とする形になります（\cref{fig:prep-discrete} の左）。
+$p = 0.5$ なら左右対称、$p$ が小さいと左に偏った形です。
+
+\subsubsection*{ポアソン分布}
+
+「1 時間にかかってくる電話の本数」「1 日に起こる交通事故の件数」のように、
+起こる機会はたくさんあるけれど 1 回 1 回はめったに起こらない出来事の回数を考えます。
+1 時間を $n$ 個の短い時間に区切ると、それぞれの短い時間に電話がかかってくるかどうかはベルヌーイ試行と考えられます。
+1 時間あたりの平均の本数を $\lambda$（ラムダ）とすると、1 つの短い時間にかかってくる確率は $p = \lambda / n$ です。
+区切りを細かくしていく（$n$ を大きくする）と、二項分布は次の分布に近づきます。
+
+\begin{theorem}[ポアソンの少数の法則][thm:poisson-limit]
+  $\lambda > 0$ を定数とし、$p = \lambda / n$ とする。$k$ を固定して $n$ を限りなく大きくすると、
+  \[
+    \binom{n}{k} p^k (1 - p)^{n-k} \;\longrightarrow\; \frac{\lambda^k e^{-\lambda}}{k!}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  $p = \lambda/n$ を代入して、3 つの部分に分けます。
+  \[
+    \binom{n}{k} \left(\frac{\lambda}{n}\right)^k \left(1 - \frac{\lambda}{n}\right)^{n-k}
+    = \frac{\lambda^k}{k!} \cdot \underbrace{\frac{n(n-1)\cdots(n-k+1)}{n^k}}_{\text{(a)}} \cdot \underbrace{\left(1 - \frac{\lambda}{n}\right)^{n}}_{\text{(b)}} \cdot \underbrace{\left(1 - \frac{\lambda}{n}\right)^{-k}}_{\text{(c)}}.
+  \]
+  (a) は $\frac{n}{n} \cdot \frac{n-1}{n} \cdots \frac{n-k+1}{n}$ と $k$ 個の積に分けると、どれも $1$ に近づくので、$1$ に近づきます。
+  (b) は、数学 III で学ぶ極限 $\displaystyle\lim_{n \to \infty} \left(1 + \frac{x}{n}\right)^n = e^x$ で $x = -\lambda$ としたもので、$e^{-\lambda}$ に近づきます。
+  (c) は $k$ が固定されているので、$1^{-k} = 1$ に近づきます。
+  以上より、全体は $\dfrac{\lambda^k}{k!} e^{-\lambda}$ に近づきます。
+\end{proof}
+
+\begin{definition}[ポアソン分布][def:poisson]
+  $k = 0, 1, 2, \dots$ について
+  \[
+    \Prob(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+  \]
+  となる確率分布を、パラメータ $\lambda$ の\term{ポアソン分布}{ぽあそんぶんぷ}{Poisson distribution}といい、$X \sim \Po(\lambda)$ と書く。
+\end{definition}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_poisson_limit.pdf}
+  \caption{$np = 3$ を保ったまま $n$ を大きくすると、二項分布はポアソン分布 $\Po(3)$ に近づく}
+  \label{fig:prep-poisson-limit}
+\end{figure}
+
+\begin{mathnote}[$e^x$ の級数展開]
+  $e^x = \displaystyle\sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots$ がすべての実数 $x$ で成り立ちます。
+  右辺のように無限個の項を足したものを\term{級数}{きゅうすう}{series}といいます。
+  この式を使うと、ポアソン分布の確率の合計は $e^{-\lambda} \sum_{k=0}^{\infty} \frac{\lambda^k}{k!} = e^{-\lambda} e^{\lambda} = 1$ と確かめられます。
+  導出は数学基礎「1 変数関数の微分法」（テイラー展開）で扱います。
+\end{mathnote}
+
+\begin{theorem}[ポアソン分布の期待値と分散][thm:poisson-moments]
+  $X \sim \Po(\lambda)$ のとき、$\E[X] = \V[X] = \lambda$。
+\end{theorem}
+
+\begin{proof}
+  $k = 0$ の項は $0$ なので除き、$k/k! = 1/(k-1)!$ を使います。$j = k - 1$ とおきかえると、
+  \[
+    \E[X] = \sum_{k=1}^{\infty} k \frac{\lambda^k e^{-\lambda}}{k!}
+    = \lambda e^{-\lambda} \sum_{k=1}^{\infty} \frac{\lambda^{k-1}}{(k-1)!}
+    = \lambda e^{-\lambda} \sum_{j=0}^{\infty} \frac{\lambda^{j}}{j!}
+    = \lambda e^{-\lambda} e^{\lambda} = \lambda
+  \]
+  です。同じように、$k(k-1)/k! = 1/(k-2)!$ を使うと
+  \[
+    \E[X(X-1)] = \sum_{k=2}^{\infty} k(k-1) \frac{\lambda^k e^{-\lambda}}{k!}
+    = \lambda^2 e^{-\lambda} \sum_{k=2}^{\infty} \frac{\lambda^{k-2}}{(k-2)!} = \lambda^2
+  \]
+  です。$\E[X^2] = \E[X(X-1)] + \E[X] = \lambda^2 + \lambda$ なので、$\V[X] = \lambda^2 + \lambda - \lambda^2 = \lambda$ です。
+\end{proof}
+
+\begin{intuition}
+  ポアソン分布は「二項分布 $\Bin(n, \lambda/n)$ で $n$ をとても大きくしたもの」です。
+  二項分布の期待値は $np = \lambda$、分散は $np(1-p) = \lambda(1 - \lambda/n)$ で、$n$ を大きくすると $\lambda$ に近づきます。
+  期待値と分散が等しいのは、この名残です。
+\end{intuition}
+
+\begin{merit}
+  「起こる機会の数 $n$」や「1 回あたりの確率 $p$」が分からなくても、\textbf{平均の回数 $\lambda$ だけ}で確率が計算できます。
+  電話の本数、サイトへのアクセス数、不良品の数など、実際のデータでは $n$ と $p$ が分からず $\lambda$ だけが分かる場面が多いので、とても便利です。
+\end{merit}
+
+\begin{example}[電話の本数][ex:poisson]
+  ある窓口には、1 時間に平均 2 本の電話がかかってくるとします。1 時間の本数を $X \sim \Po(2)$ と考えると、
+  \begin{align*}
+    \Prob(X = 0) &= e^{-2} \approx 0.135, \\
+    \Prob(X \ge 2) &= 1 - \Prob(X = 0) - \Prob(X = 1) = 1 - 3e^{-2} \approx 0.594
+  \end{align*}
+  です。2 つめの計算では、余事象（\cref{cor:complement}）を使いました。
+\end{example}
+
+\subsubsection*{幾何分布}
+
+\begin{definition}[幾何分布][def:geometric]
+  成功の確率が $p$ のベルヌーイ試行を独立にくり返すとき、\textbf{初めて成功するまでの試行の回数}（成功した回を含む）を $X$ とする。
+  $X$ の確率分布を、パラメータ $p$ の\term{幾何分布}{きかぶんぷ}{geometric distribution}といい、$X \sim \Geo(p)$ と書く。
+  $k = 1, 2, \dots$ について
+  \[
+    \Prob(X = k) = (1 - p)^{k-1} p.
+  \]
+\end{definition}
+
+確率関数の式は、「最初の $k - 1$ 回が続けて失敗し、$k$ 回目に成功する」確率として、独立な試行の確率のかけ算で求まります。
+確率は公比 $1 - p$ の等比数列で、確率の合計は無限等比級数の和 $\sum_{k=1}^{\infty} (1-p)^{k-1} p = p \cdot \dfrac{1}{1 - (1 - p)} = 1$ です。
+「幾何分布」の名前は、等比数列（幾何数列）に由来します。
+
+\begin{theorem}[幾何分布の期待値と分散][thm:geometric-moments]
+  $X \sim \Geo(p)$ のとき、
+  \[
+    \E[X] = \frac{1}{p}, \qquad \V[X] = \frac{1 - p}{p^2}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  $q = 1 - p$ とおきます。$0 < q < 1$ のとき、無限等比級数の和の公式
+  \[
+    \sum_{k=0}^{\infty} q^k = \frac{1}{1 - q}
+  \]
+  の両辺を $q$ で微分すると（下の〔数学メモ〕）、
+  \[
+    \sum_{k=1}^{\infty} k q^{k-1} = \frac{1}{(1 - q)^2}, \qquad
+    \sum_{k=2}^{\infty} k(k-1) q^{k-2} = \frac{2}{(1 - q)^3}
+  \]
+  です（右の式は、もう 1 回微分したもの）。$1 - q = p$ に注意すると、
+  \[
+    \E[X] = \sum_{k=1}^{\infty} k q^{k-1} p = \frac{p}{p^2} = \frac{1}{p}, \qquad
+    \E[X(X-1)] = \sum_{k=2}^{\infty} k(k-1) q^{k-1} p = pq \cdot \frac{2}{p^3} = \frac{2q}{p^2}
+  \]
+  です。よって
+  \[
+    \V[X] = \E[X(X-1)] + \E[X] - \bigl(\E[X]\bigr)^2 = \frac{2q}{p^2} + \frac{1}{p} - \frac{1}{p^2} = \frac{2q + p - 1}{p^2} = \frac{q}{p^2}
+  \]
+  です（最後は $p - 1 = -q$ を使いました）。
+\end{proof}
+
+\begin{mathnote}[級数を項ごとに微分する]
+  $\sum_{k=0}^{\infty} q^k = 1 + q + q^2 + \cdots$ のような無限個の項の和でも、$\abs{q} < 1$ の範囲では、
+  各項を微分してから足したもの $0 + 1 + 2q + 3q^2 + \cdots$ が、和 $\frac{1}{1-q}$ の微分 $\frac{1}{(1-q)^2}$ に等しくなります。
+  このことの証明は数学基礎の部で扱います。
+\end{mathnote}
+
+\begin{intuition}
+  成功の確率が $1/6$ なら、平均して 6 回に 1 回成功するので、初めての成功までには平均 6 回かかる、という自然な結果です。
+\end{intuition}
+
+幾何分布には、次の面白い性質があります。
+
+\begin{proposition}[幾何分布の無記憶性][prop:geometric-memoryless]
+  $X \sim \Geo(p)$ のとき、0 以上の整数 $s$、$t$ について
+  \[
+    \Prob(X > s + t \mid X > s) = \Prob(X > t).
+  \]
+\end{proposition}
+
+\begin{proof}
+  「$X > k$」は「最初の $k$ 回がすべて失敗」と同じなので、$\Prob(X > k) = (1-p)^k$ です。
+  「$X > s + t$」なら「$X > s$」でもあるので、条件付き確率の定義より
+  \[
+    \Prob(X > s + t \mid X > s) = \frac{\Prob(X > s + t)}{\Prob(X > s)} = \frac{(1-p)^{s+t}}{(1-p)^{s}} = (1-p)^{t} = \Prob(X > t)
+  \]
+  です。
+\end{proof}
+
+\begin{intuition}
+  「すでに $s$ 回失敗した」と分かっていても、そこから先の成功までの回数の分布は、最初から始めるときと同じです。
+  試行が独立なので、過去の失敗を「覚えていない」のです。
+  「10 回も外れたから、そろそろ当たるはず」という考えはまちがいだ、ということを表しています。
+\end{intuition}
+
+\begin{example}[6 が出るまでサイコロを投げる][ex:geometric]
+  6 が出るまでサイコロを投げる回数を $X \sim \Geo(1/6)$ とします。
+  平均 $\E[X] = 6$ 回かかり、6 回投げても 1 度も 6 が出ない確率は $\Prob(X > 6) = (5/6)^6 \approx 0.335$ です。
+\end{example}
+
+\begin{exampoint}
+  幾何分布には、「初めて成功するまでの\textbf{失敗}の回数」（$0, 1, 2, \dots$）で定義する流儀もあります。
+  その場合、確率関数は $(1-p)^k p$、期待値は $(1-p)/p$ となり、この本の $X$ より $1$ 小さくなります（分散は同じ）。
+  問題文がどちらの定義を使っているかを、必ず確かめましょう。
+\end{exampoint}
+
+\subsection{連続型の分布}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_continuous.pdf}
+  \caption{連続型の分布の確率密度関数。左から一様分布、指数分布、正規分布}
+  \label{fig:prep-continuous}
+\end{figure}
+
+\subsubsection*{一様分布}
+
+\begin{definition}[一様分布][def:uniform]
+  $a < b$ とする。確率密度関数が
+  \[
+    f(x) = \begin{cases} \dfrac{1}{b - a} & (a \le x \le b) \\[2mm] 0 & (\text{それ以外}) \end{cases}
+  \]
+  である確率分布を、区間 $[a, b]$ 上の\term{一様分布}{いちようぶんぷ}{uniform distribution}といい、$X \sim \Unif(a, b)$ と書く。
+\end{definition}
+
+区間 $[a, b]$ の中のどこも同じ「起こりやすさ」をもつ分布です（\cref{fig:prep-continuous} の左）。
+長方形の面積が $(b - a) \times \frac{1}{b-a} = 1$ になるように、高さが決まっています。
+
+\begin{proposition}[一様分布の期待値と分散][prop:uniform-moments]
+  $X \sim \Unif(a, b)$ のとき、
+  \[
+    \E[X] = \frac{a + b}{2}, \qquad \V[X] = \frac{(b - a)^2}{12}.
+  \]
+\end{proposition}
+
+\begin{proof}
+  \begin{align*}
+    \E[X] &= \int_a^b \frac{x}{b - a} \dd x = \frac{b^2 - a^2}{2(b - a)} = \frac{a + b}{2}, \\
+    \E[X^2] &= \int_a^b \frac{x^2}{b - a} \dd x = \frac{b^3 - a^3}{3(b - a)} = \frac{a^2 + ab + b^2}{3}
+  \end{align*}
+  です。よって
+  \[
+    \V[X] = \frac{a^2 + ab + b^2}{3} - \frac{(a + b)^2}{4} = \frac{a^2 - 2ab + b^2}{12} = \frac{(b - a)^2}{12}
+  \]
+  です。
+\end{proof}
+
+\begin{example}[バスの待ち時間][ex:uniform]
+  10 分おきに来るバスの停留所に、時刻表を見ずに行くと、待ち時間 $X$（分）は $\Unif(0, 10)$ にしたがうと考えられます。
+  平均の待ち時間は $5$ 分、標準偏差は $10/\sqrt{12} \approx 2.89$ 分です。
+  なお、Python の \texttt{rng.random()} が作る乱数は、$\Unif(0, 1)$ にしたがいます。
+\end{example}
+
+\subsubsection*{指数分布}
+
+\begin{definition}[指数分布][def:exponential]
+  $\lambda > 0$ とする。確率密度関数が
+  \[
+    f(x) = \begin{cases} \lambda e^{-\lambda x} & (x \ge 0) \\ 0 & (x < 0) \end{cases}
+  \]
+  である確率分布を、パラメータ $\lambda$ の\term{指数分布}{しすうぶんぷ}{exponential distribution}といい、$X \sim \Ex(\lambda)$ と書く。
+\end{definition}
+
+指数分布は、待ち時間や、機械が故障するまでの時間などを表すのに使います（\cref{fig:prep-continuous} の中央）。
+累積分布関数は、$x \ge 0$ で
+\[
+  F(x) = \int_0^x \lambda e^{-\lambda t} \dd t = \bigl[-e^{-\lambda t}\bigr]_0^x = 1 - e^{-\lambda x}
+\]
+なので、$\Prob(X > x) = e^{-\lambda x}$ です。$x \to \infty$ で $F(x) \to 1$ となり、全体の面積が $1$ であることも確かめられます。
+
+\begin{theorem}[指数分布の期待値と分散][thm:exponential-moments]
+  $X \sim \Ex(\lambda)$ のとき、
+  \[
+    \E[X] = \frac{1}{\lambda}, \qquad \V[X] = \frac{1}{\lambda^2}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  部分積分（数学 III）を使います。$x \to \infty$ のとき $x e^{-\lambda x} \to 0$、$x^2 e^{-\lambda x} \to 0$ であることに注意すると、
+  \[
+    \E[X] = \int_0^\infty x \cdot \lambda e^{-\lambda x} \dd x
+    = \bigl[-x e^{-\lambda x}\bigr]_0^\infty + \int_0^\infty e^{-\lambda x} \dd x
+    = 0 + \frac{1}{\lambda}
+  \]
+  です。同じように、
+  \[
+    \E[X^2] = \int_0^\infty x^2 \cdot \lambda e^{-\lambda x} \dd x
+    = \bigl[-x^2 e^{-\lambda x}\bigr]_0^\infty + \int_0^\infty 2x e^{-\lambda x} \dd x
+    = \frac{2}{\lambda} \int_0^\infty x \cdot \lambda e^{-\lambda x} \dd x = \frac{2}{\lambda^2}
+  \]
+  です（最後は $\E[X] = 1/\lambda$ を使いました）。よって $\V[X] = 2/\lambda^2 - 1/\lambda^2 = 1/\lambda^2$ です。
+\end{proof}
+
+指数分布とポアソン分布の間には、次の関係があります。
+
+\begin{proposition}[ポアソン分布と指数分布][prop:poisson-exponential]
+  ある出来事が、長さ $t$ の時間に起こる回数が $\Po(\lambda t)$ にしたがうとする（単位時間あたり平均 $\lambda$ 回）。
+  このとき、最初の出来事が起こるまでの待ち時間 $T$ は $\Ex(\lambda)$ にしたがう。
+\end{proposition}
+
+\begin{proof}
+  「$T > t$」（時刻 $t$ までに 1 回も起こらない）は、「長さ $t$ の時間に起こる回数が $0$」と同じです。
+  よって、ポアソン分布の式で $k = 0$ として $\Prob(T > t) = e^{-\lambda t}$ です。
+  これは $\Ex(\lambda)$ の $\Prob(X > t)$ と同じなので、$T$ の累積分布関数は $\Ex(\lambda)$ と一致します。
+\end{proof}
+
+\begin{intuition}
+  ポアソン分布は「決まった時間の中で何回起こるか」、指数分布は「次に起こるまでどれだけ待つか」を表します。
+  同じ現象を、回数で見るか時間で見るかのちがいです。
+  1 時間に平均 $\lambda$ 回起こるなら、平均の待ち時間は $1/\lambda$ 時間になります。
+\end{intuition}
+
+指数分布も、幾何分布と同じ無記憶性 $\Prob(X > s + t \mid X > s) = \Prob(X > t)$ をもちます。
+証明は\cref{prop:geometric-memoryless} と同じで、$(1-p)^k$ を $e^{-\lambda x}$ に置きかえるだけです。
+指数分布は、幾何分布の「連続版」といえます。
+
+\begin{example}[電話の待ち時間][ex:exponential]
+  \cref{ex:poisson} の窓口（1 時間に平均 2 本）で、次の電話までの待ち時間 $T$（時間）は $\Ex(2)$ にしたがいます。
+  平均の待ち時間は $1/2$ 時間 $= 30$ 分です。
+  1 時間以上待つ確率は $\Prob(T > 1) = e^{-2} \approx 0.135$ で、\cref{ex:poisson} の「1 時間に 0 本」の確率と一致します。
+\end{example}
+
+\begin{exampoint}
+  指数分布のパラメータの書き方には、$\lambda$（単位時間あたりの平均回数）を使う流儀と、
+  その逆数 $\theta = 1/\lambda$（平均の待ち時間）を使う流儀があります。
+  後者では、確率密度関数が $\frac{1}{\theta} e^{-x/\theta}$、期待値が $\theta$ です。
+  Python の \texttt{scipy.stats.expon} は後者で、\texttt{scale} に $1/\lambda$ を指定します。
+\end{exampoint}
+
+\subsubsection*{正規分布}
+
+\begin{definition}[正規分布][def:normal]
+  $\mu$ を実数、$\sigma > 0$ とする。確率密度関数が
+  \[
+    f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
+  \]
+  である確率分布を、\term{正規分布}{せいきぶんぷ}{normal distribution}といい、$X \sim \Normal(\mu, \sigma^2)$ と書く。
+  $\exp(x)$ は $e^x$ のことである。
+\end{definition}
+
+正規分布は、統計でもっとも重要な分布です。
+測定の誤差、身長、テストの点数など、多くのデータの分布が、正規分布に近い釣鐘のような形をしています。
+また、\cref{chap:stat-probability}で学ぶ中心極限定理により、たくさんの確率変数の和や平均は、元の分布によらず正規分布に近づきます。
+
+\begin{proposition}[正規分布の形][prop:normal-shape]
+  $\Normal(\mu, \sigma^2)$ の確率密度関数 $f(x)$ は、
+  \begin{enumerate}
+    \item $x = \mu$ に関して左右対称で、$x = \mu$ で最大になる。
+    \item $x = \mu \pm \sigma$ で、グラフの曲がり方が変わる（変曲点）。
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  (1) $f(x)$ は $(x - \mu)^2$ だけで決まるので、$\mu$ から同じ距離にある 2 点で同じ値です。
+  $(x - \mu)^2$ が最小（$0$）になる $x = \mu$ で、$\exp$ の中身が最大になります。
+  (2) 合成関数の微分より $f'(x) = -\dfrac{x - \mu}{\sigma^2} f(x)$ です。もう一度微分すると
+  \[
+    f''(x) = -\frac{1}{\sigma^2} f(x) + \frac{(x - \mu)^2}{\sigma^4} f(x) = \frac{(x - \mu)^2 - \sigma^2}{\sigma^4} f(x)
+  \]
+  です。$f(x) > 0$ なので、$f''(x)$ の符号は $x = \mu \pm \sigma$ で入れかわります。
+\end{proof}
+
+\cref{fig:prep-continuous} の右のように、$\mu$ は山の位置を、$\sigma$ は山の幅を決めます。
+$\sigma$ が大きいほど、山は低く、すそは広くなります（面積はいつも $1$）。
+
+\begin{mathnote}[ガウス積分]
+  \[
+    \int_{-\infty}^{\infty} e^{-x^2/2} \dd x = \sqrt{2\pi}
+  \]
+  が成り立ちます。これを\term{ガウス積分}{がうすせきぶん}{Gaussian integral}といいます。
+  左辺を $I$ とおくと、$I^2 = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2+y^2)/2} \dd x \dd y$ です。
+  これを平面上の極座標 $x = r\cos\theta$、$y = r\sin\theta$ で書きかえると、
+  $I^2 = \int_0^{2\pi}\int_0^{\infty} e^{-r^2/2}\, r \dd r \dd\theta = 2\pi \bigl[-e^{-r^2/2}\bigr]_0^\infty = 2\pi$ となります。
+  重積分と極座標による変数変換は、数学基礎の部で扱います。
+\end{mathnote}
+
+\begin{theorem}[正規分布の期待値と分散][thm:normal-moments]
+  $X \sim \Normal(\mu, \sigma^2)$ のとき、$\int_{-\infty}^{\infty} f(x) \dd x = 1$ であり、
+  \[
+    \E[X] = \mu, \qquad \V[X] = \sigma^2.
+  \]
+\end{theorem}
+
+\begin{proof}
+  $\varphi(z) = \dfrac{1}{\sqrt{2\pi}} e^{-z^2/2}$ とおきます（$\varphi$ は「ファイ」）。
+  $x = \mu + \sigma z$ と置換すると、$\dd x = \sigma \dd z$ で、$f(x) \dd x = \varphi(z) \dd z$ となります。
+  \begin{itemize}
+    \item 面積：ガウス積分より $\int_{-\infty}^{\infty} f(x) \dd x = \int_{-\infty}^{\infty} \varphi(z) \dd z = 1$ です。
+    \item 期待値：$\E[X] = \int_{-\infty}^{\infty} (\mu + \sigma z)\, \varphi(z) \dd z = \mu + \sigma \int_{-\infty}^{\infty} z\, \varphi(z) \dd z$ です。
+      $z\,\varphi(z)$ は奇関数（$z$ を $-z$ にすると符号だけ変わる）なので、最後の積分は $0$ で、$\E[X] = \mu$ です。
+    \item 分散：$\V[X] = \int_{-\infty}^{\infty} (\sigma z)^2 \varphi(z) \dd z = \sigma^2 \int_{-\infty}^{\infty} z \cdot z\,\varphi(z) \dd z$ です。
+      $\varphi'(z) = -z\,\varphi(z)$ を使って部分積分すると、
+      \[
+        \int_{-\infty}^{\infty} z \cdot z\,\varphi(z) \dd z = \bigl[-z\,\varphi(z)\bigr]_{-\infty}^{\infty} + \int_{-\infty}^{\infty} \varphi(z) \dd z = 0 + 1 = 1
+      \]
+      なので、$\V[X] = \sigma^2$ です。\qedhere
+  \end{itemize}
+\end{proof}
+
+つまり、正規分布のパラメータ $\mu$ と $\sigma^2$ は、そのまま期待値と分散です。
+正規分布は、1 次変換しても正規分布のままです。
+
+\begin{proposition}[正規分布の 1 次変換][prop:normal-linear]
+  $X \sim \Normal(\mu, \sigma^2)$、$a \ne 0$ のとき、
+  \[
+    aX + b \sim \Normal(a\mu + b,\ a^2\sigma^2).
+  \]
+\end{proposition}
+
+\begin{proof}
+  $a > 0$ の場合を示します。$Y = aX + b$ の累積分布関数は
+  \[
+    F_Y(y) = \Prob(aX + b \le y) = \Prob\left(X \le \frac{y - b}{a}\right) = F_X\left(\frac{y - b}{a}\right)
+  \]
+  です。両辺を $y$ で微分すると（\cref{prop:cdf-properties} の (4) と合成関数の微分）、
+  \[
+    f_Y(y) = \frac{1}{a} f_X\left(\frac{y - b}{a}\right)
+    = \frac{1}{\sqrt{2\pi a^2\sigma^2}} \exp\left(-\frac{\bigl(y - (a\mu + b)\bigr)^2}{2a^2\sigma^2}\right)
+  \]
+  です（$\frac{y-b}{a} - \mu = \frac{y - (a\mu + b)}{a}$ を使いました）。
+  これは $\Normal(a\mu + b, a^2\sigma^2)$ の確率密度関数です。
+  $a < 0$ のときは不等号の向きが逆になりますが、同じように示せます。
+\end{proof}
+
+期待値 $a\mu + b$ と分散 $a^2\sigma^2$ は、\cref{thm:expectation-linear,thm:variance-linear} からも分かります。
+この命題の大事な点は、変換した後も\textbf{正規分布である}ことです。
+
+\begin{supplement}[独立な正規分布の和]
+  $X \sim \Normal(\mu_1, \sigma_1^2)$ と $Y \sim \Normal(\mu_2, \sigma_2^2)$ が独立なら、
+  \[
+    X + Y \sim \Normal(\mu_1 + \mu_2,\ \sigma_1^2 + \sigma_2^2)
+  \]
+  です。期待値と分散は\cref{thm:expectation-sum,thm:variance-sum} から分かりますが、和が\textbf{正規分布になる}ことの証明には積率母関数を使います。
+  証明は\cref{chap:stat-probability}で行います。
+\end{supplement}
+
+\subsection{標準化と標準正規分布表の使い方}
+
+$\Normal(0, 1)$ を\term{標準正規分布}{ひょうじゅんせいきぶんぷ}{standard normal distribution}といいます。
+その確率密度関数は、\cref{thm:normal-moments} の証明に出てきた $\varphi(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}$ です。
+どんな正規分布も、標準化すると標準正規分布になります。
+
+\begin{corollary}[正規分布の標準化][cor:normal-standardize]
+  $X \sim \Normal(\mu, \sigma^2)$ のとき、
+  \[
+    Z = \frac{X - \mu}{\sigma} \sim \Normal(0, 1).
+  \]
+\end{corollary}
+
+\begin{proof}
+  $Z = \frac{1}{\sigma} X - \frac{\mu}{\sigma}$ なので、\cref{prop:normal-linear} で $a = 1/\sigma$、$b = -\mu/\sigma$ とすると、
+  $Z \sim \Normal\left(\frac{\mu}{\sigma} - \frac{\mu}{\sigma},\ \frac{\sigma^2}{\sigma^2}\right) = \Normal(0, 1)$ です。
+\end{proof}
+
+\begin{merit}
+  正規分布の確率密度関数は、高校数学の範囲では積分できません。
+  しかし、標準化すれば、どんな $\mu$、$\sigma$ の正規分布の確率も、\textbf{標準正規分布の表 1 枚}で求められます。
+  $\mu$ と $\sigma$ の組み合わせごとに表を用意する必要はないのです。
+\end{merit}
+
+\subsubsection*{標準正規分布表の読み方}
+
+$Z \sim \Normal(0, 1)$ について、
+\[
+  Q(z) = \Prob(Z \ge z)
+\]
+を\term{上側確率}{うえがわかくりつ}{upper tail probability}といいます（\cref{fig:prep-normal} の左）。
+\cref{tab:prep-normal} は、$z \ge 0$ について $Q(z)$ の値をまとめた\term{標準正規分布表}{ひょうじゅんせいきぶんぷひょう}{standard normal table}です。
+$z$ の小数第 1 位までを行で、小数第 2 位を列で探します。
+たとえば $Q(1.96)$ は、「1.9」の行と「.06」の列が交わる所にある $.0250$、つまり $0.0250$ です。
+
+\begin{table}[p]
+  \centering
+  \caption{標準正規分布の上側確率 $Q(z) = \Prob(Z \ge z)$。行は $z$ の小数第 1 位まで、列は小数第 2 位}
+  \label{tab:prep-normal}
+  \small
+  \renewcommand{\arraystretch}{0.95}
+  \input{tables/normal-upper}
+\end{table}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_normal.pdf}
+  \caption{標準正規分布。左：正規分布表の値 $Q(z)$ は色をつけた部分の面積。右：平均から標準偏差の 1、2、3 倍以内に入る確率}
+  \label{fig:prep-normal}
+\end{figure}
+
+表には $z \ge 0$ の値しかありませんが、左右対称性と余事象を使えば、どんな区間の確率も求まります。
+\begin{itemize}
+  \item 左側の確率：$\Prob(Z \le -z) = \Prob(Z \ge z) = Q(z)$（左右対称）
+  \item 下側確率：$\Prob(Z \le z) = 1 - Q(z)$（余事象）
+  \item 区間の確率：$0 \le a < b$ のとき、$\Prob(a \le Z \le b) = Q(a) - Q(b)$
+\end{itemize}
+
+\begin{example}[標準正規分布の確率][ex:normal-table]
+  \begin{itemize}
+    \item $\Prob(Z \ge 1.5) = Q(1.5) = 0.0668$。
+    \item $\Prob(-1 \le Z \le 1) = 1 - 2Q(1) = 1 - 2 \times 0.1587 = 0.6826$。
+    \item 同じように、$\Prob(-2 \le Z \le 2) = 1 - 2 \times 0.0228 = 0.9544$、
+      $\Prob(-3 \le Z \le 3) = 1 - 2 \times 0.0013 = 0.9974$（表の値は丸めてあるので、正確には $0.9973$）。
+  \end{itemize}
+\end{example}
+
+最後の例から、次の目安が得られます（\cref{fig:prep-normal} の右）。
+正規分布にしたがうデータは、平均 $\pm 1\sigma$ の範囲に約 68\%、$\pm 2\sigma$ に約 95\%、$\pm 3\sigma$ に約 99.7\% が入ります。
+
+\begin{example}[テストの点数][ex:normal-score]
+  ある試験の点数 $X$ が $\Normal(60, 10^2)$ にしたがうとします。
+  \begin{itemize}
+    \item 75 点以上の人の割合は、標準化して
+      $\Prob(X \ge 75) = \Prob\left(Z \ge \frac{75 - 60}{10}\right) = Q(1.5) = 0.0668$、つまり約 6.7\% です。
+    \item 上位 5\% に入るには何点必要かを求めます。$Q(z) = 0.05$ となる $z$ を表で探すと、
+      $Q(1.64) = 0.0505$、$Q(1.65) = 0.0495$ なので、$z \approx 1.645$ です。
+      よって、$60 + 1.645 \times 10 \approx 76.5$ 点以上が必要です。
+  \end{itemize}
+\end{example}
+
+\begin{exampoint}
+  次の 3 つの値は、区間推定や検定で何度も使うので、覚えておきましょう。
+  \[
+    Q(1.645) \approx 0.05, \qquad Q(1.96) \approx 0.025, \qquad Q(2.576) \approx 0.005
+  \]
+  たとえば、$\Prob(-1.96 \le Z \le 1.96) \approx 0.95$ です。
+\end{exampoint}
+
+Python では、\texttt{scipy.stats} を使うと、表を引かずに確率が求まります。
+
+\begin{pycode}[分布の確率を求める]
+from scipy import stats
+
+print(stats.binom.pmf(7, 10, 0.5))      # Bin(10, 0.5) で P(X = 7)
+print(stats.poisson.pmf(0, 2))          # Po(2) で P(X = 0)
+print(stats.norm.sf(1.5))               # 上側確率 Q(1.5)
+print(stats.norm.ppf(0.95))             # P(Z <= z) = 0.95 となる z
+print(stats.norm.sf(75, loc=60, scale=10))  # N(60, 10^2) で P(X >= 75)
+\end{pycode}
+
+\begin{pyoutput}
+0.11718749999999999
+0.1353352832366127
+0.06680720126885807
+1.6448536269514722
+0.06680720126885807
+\end{pyoutput}
+
+\texttt{pmf} は確率関数、\texttt{cdf} は累積分布関数、\texttt{sf} は上側確率 $1 - F(x)$、
+\texttt{ppf} は累積分布関数の逆関数（下側確率から $z$ を求める）です。
+\texttt{scale} には分散 $\sigma^2$ ではなく、標準偏差 $\sigma$ を指定することに注意してください。
+
+\begin{problem}[身長の確率][prob:normal-height]
+  ある集団の身長 $X$（cm）が $\Normal(170, 5^2)$ にしたがうとき、$\Prob(165 \le X \le 180)$ を求めなさい。
+  \tcblower
+  標準化すると、$165$ は $z = (165 - 170)/5 = -1$、$180$ は $z = (180 - 170)/5 = 2$ になります。
+  $\Prob(-1 \le Z \le 2)$ は、全体の $1$ から「$Z < -1$」と「$Z > 2$」の確率を引いたものです。
+  左右対称性より $\Prob(Z < -1) = Q(1)$ なので、
+  \[
+    \Prob(165 \le X \le 180) = 1 - Q(1) - Q(2) = 1 - 0.1587 - 0.0228 = 0.8185
+  \]
+  です。
+\end{problem}
 
 % ---------------------------------------------------------------------
 \section{推定と検定の基本}

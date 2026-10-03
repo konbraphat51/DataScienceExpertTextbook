@@ -29,6 +29,10 @@
 - スタイルを変えたら `latexmk sample.tex` を作り、`pdftoppm -png` で画像にして見た目を確かめる
 - 図は `scripts/figures/<名前>.py`（`figstyle` を使う）→ `uv run scripts/figures/build_all.py` → `tex/figures/<名前>.pdf`。PDF もコミットする
 - 図は `\includegraphics{名前.pdf}` と拡大縮小せずに入れる（幅は Python 側の `WIDTH` などで決める）
+- 図のファイル名は章ごとの接頭辞をつける（第 1 章「準備」は `prep_`）
+- 数表は `scripts/tables/<名前>.py` → `tex/tables/<名前>.tex` を作り、`\input{tables/<名前>}` で入れる（例：標準正規分布表 `normal-upper`）
+- 本文の Python コードは、実際に `uv run python` で実行して、出力をそのまま `pyoutput` に貼る（乱数は `seed=0` で固定）
+- スクラッチパッドで Python を実行するときは、`py/` などのサブフォルダに置く（`bisect.py` などの名前の残骸が標準ライブラリを隠して、実行が止まったことがある）
 
 ### 書き方の決まり
 
@@ -42,6 +46,10 @@
 - 用語の初出は `\term{用語}{よみ}{英語}`（太字＋英語訳＋索引）。例：`\term{積率母関数}{せきりつぼかんすう}{moment generating function}` → **積率母関数**（moment generating function）
   - 英語訳は必ず付ける（ユーザーの指示）。英語は小文字始まり、略語があれば `moment generating function, MGF` のように続ける
   - 英語訳が本当にない場合だけ 3 つめを `{}` にする（括弧ごと省かれる）
+- 索引の読みは、記号で始まる用語もかなで書く（`$z$ スコア` → `ぜっとすこあ`）。英字のままだと索引の先頭に別の見出しができる
+- 第 1 章「準備」は範囲表外なので、節に `\keywords` を置かない
+- 記法：余事象は $A^c$（$\bar{x}$ は平均に使う）。条件付き確率は `\Prob(A \mid B)`。データの分散は $s_x^2$（$n$ で割る）、共分散 $s_{xy}$、相関係数 $r_{xy}$。確率変数の相関係数は $\rho_{XY}$。標準正規分布の密度は $\varphi(z)$、上側確率は $Q(z)$
+- 幾何分布は「初めて成功するまでの試行回数」（$1, 2, \dots$）で定義した
 - 記号は `textbook-math.sty` のマクロを使う（`\E[X]`、`\V[X]`、`\Cov(X,Y)`、`\Normal(\mu,\sigma^2)`、`\dd x` など）。新しい記号もここに足す
 
 ### 作業環境の注意
