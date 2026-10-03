@@ -103,7 +103,8 @@ def save(fig, name: str) -> Path:
     """tex/figures/<name>.pdf に保存する。"""
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     path = FIG_DIR / f"{name}.pdf"
-    fig.savefig(path)
+    # 作成日時を入れない（作り直しても中身が同じなら、git の差分が出ないように）
+    fig.savefig(path, metadata={"CreationDate": None})
     plt.close(fig)
     print(f"saved: {path.relative_to(FIG_DIR.parents[1])}")
     return path

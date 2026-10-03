@@ -2217,13 +2217,492 @@ print(stats.norm.sf(75, loc=60, scale=10))  # N(60, 10^2) で P(X >= 75)
 \section{推定と検定の基本}
 \label{sec:stat-estimation-testing-basics}
 
-% TODO: 母集団と標本、統計量
-% TODO: 標本平均の期待値と分散
-% TODO: 推定量と不偏性（不偏分散で $n-1$ で割る理由）
-% TODO: 仮説検定の流れ：帰無仮説と対立仮説、有意水準、棄却域、p 値
-% TODO: 第1種の過誤・第2種の過誤、検出力
-% TODO: 片側検定と両側検定
+ここまでで、確率分布が分かっていれば、いろいろな確率や期待値を計算できるようになりました。
+しかし現実には、分布そのもの（たとえば日本人全体の平均身長）は分かりません。
+手に入るのは、その一部を調べたデータだけです。
+この節では、一部のデータから全体について推し量る方法の基本を学びます。
+
+\subsection{母集団と標本、統計量}
+
+調べたい対象全体を\term{母集団}{ぼしゅうだん}{population}、
+そこから実際に取り出して調べた一部を\term{標本}{ひょうほん}{sample}といいます。
+標本に含まれる個体の数 $n$ を\term{標本の大きさ}{ひょうほんのおおきさ}{sample size}といいます。
+母集団からかたよりなく、くじ引きのように標本を選ぶことを\term{無作為抽出}{むさくいちゅうしゅつ}{random sampling}といいます。
+
+\begin{example}[テレビの視聴時間][ex:population-sample]
+  日本の成人全員の 1 日のテレビの視聴時間を知りたいとします。
+  全員を調べる（全数調査）のは大変なので、無作為に選んだ 1000 人を調べます。
+  このとき、日本の成人全員が母集団、選ばれた 1000 人が標本で、標本の大きさは $n = 1000$ です。
+\end{example}
+
+無作為抽出では、だれが選ばれるかが偶然で決まるので、標本の値も偶然によって変わります。
+そこで、標本の値 $x_1, \dots, x_n$ を、確率変数 $X_1, \dots, X_n$ の実現値と考えます。
+母集団の値の分布を\term{母集団分布}{ぼしゅうだんぶんぷ}{population distribution}といい、
+$X_1, \dots, X_n$ は、どれも母集団分布にしたがい、互いに独立だと考えます。
+このような $X_1, \dots, X_n$ を、\term{独立同一分布}{どくりつどういつぶんぷ}{independent and identically distributed, i.i.d.}にしたがうといい、
+母集団分布を $F$ として $X_1, \dots, X_n \iid F$ と書きます。
+
+母集団分布の期待値を\term{母平均}{ぼへいきん}{population mean} $\mu$、分散を\term{母分散}{ぼぶんさん}{population variance} $\sigma^2$ といいます。
+母平均や母分散のように、母集団分布を特徴づける未知の定数を\term{母数}{ぼすう}{parameter}といいます（\cref{sec:stat-basic-distributions}のパラメータと同じ意味です）。
+母数を、標本から推し量るのが統計の目標です。
+
+\begin{definition}[統計量][def:statistic]
+  標本 $X_1, \dots, X_n$ から計算される量で、未知の母数を含まないものを\term{統計量}{とうけいりょう}{statistic}という。
+  特に、
+  \[
+    \bX = \frac{1}{n} \sum_{i=1}^{n} X_i
+  \]
+  を\term{標本平均}{ひょうほんへいきん}{sample mean}という。
+\end{definition}
+
+統計量は確率変数の関数なので、それ自体も確率変数です。
+標本を取り直すたびに値が変わり、確率分布をもちます。
+統計量の確率分布を\term{標本分布}{ひょうほんぶんぷ}{sampling distribution}といいます。
+
+\begin{intuition}
+  データを集める\textbf{前}は、どんな値が出るか分からないので、標本平均は確率変数 $\bX$（大文字）です。
+  データを集めた\textbf{後}は、その値は 1 つの数 $\bar{x}$（小文字）に決まります。
+  統計の理論では、「もし何度も標本を取り直したら、$\bX$ はどのようにばらつくか」を考えることで、
+  手元の 1 つの $\bar{x}$ がどれくらい信用できるかを評価します。
+\end{intuition}
+
+\subsection{標本平均の期待値と分散}
+
+\begin{theorem}[標本平均の期待値と分散][thm:sample-mean]
+  $X_1, \dots, X_n$ が独立で、どれも期待値 $\mu$、分散 $\sigma^2$ の同じ分布にしたがうとき、
+  \[
+    \E[\bX] = \mu, \qquad \V[\bX] = \frac{\sigma^2}{n}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  \cref{thm:expectation-linear,cor:sum-n} より、
+  \[
+    \E[\bX] = \frac{1}{n} \E\left[\sum_{i=1}^{n} X_i\right] = \frac{1}{n} \sum_{i=1}^{n} \E[X_i] = \frac{1}{n} \cdot n\mu = \mu
+  \]
+  です。また、\cref{thm:variance-linear} と、独立なときの\cref{cor:sum-n} より、
+  \[
+    \V[\bX] = \frac{1}{n^2} \V\left[\sum_{i=1}^{n} X_i\right] = \frac{1}{n^2} \sum_{i=1}^{n} \V[X_i] = \frac{1}{n^2} \cdot n\sigma^2 = \frac{\sigma^2}{n}
+  \]
+  です。
+\end{proof}
+
+標本平均の標準偏差は $\sigma / \sqrt{n}$ です。
+推定に使う統計量の標準偏差を\term{標準誤差}{ひょうじゅんごさ}{standard error, SE}といいます。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_sample_mean.pdf}
+  \caption{サイコロを $n$ 回投げたときの目の平均 $\bX$ の分布。$n$ が大きいほど、期待値 $3.5$（破線）のまわりに集まる}
+  \label{fig:prep-sample-mean}
+\end{figure}
+
+\begin{intuition}
+  1 つ 1 つのデータは、母平均 $\mu$ より大きかったり小さかったりします。
+  平均をとると、それらのずれが打ち消し合うので、$\bX$ は $\mu$ の近くに集まります（\cref{fig:prep-sample-mean}）。
+  データが多いほど打ち消し合いが進み、ばらつきは小さくなります。
+\end{intuition}
+
+\begin{merit}
+  データを増やすと、推定の精度がどのように良くなるかが、式で分かります。
+  標準誤差は $\sigma/\sqrt{n}$ なので、データを 4 倍にすると誤差は $1/2$ に、100 倍にすると $1/10$ になります。
+  「精度を 2 倍にするには、データが 4 倍必要」という関係は、調査や実験の規模を決めるときの基本になります。
+\end{merit}
+
+\begin{example}[サイコロの目の平均][ex:sample-mean]
+  サイコロを 16 回投げたときの目の平均 $\bX$ は、
+  \cref{ex:dice-expectation,ex:dice-variance} より $\E[\bX] = 3.5$、$\V[\bX] = \frac{35/12}{16} \approx 0.182$ で、
+  標準誤差は $\sqrt{0.182} \approx 0.43$ です。
+  1 回だけ投げたときの標準偏差 $1.71$ の $1/4$ になっています。
+\end{example}
+
+\begin{supplement}[標本平均の分布の形]
+  \cref{fig:prep-sample-mean} を見ると、$n$ が大きくなるにつれて、$\bX$ の分布は正規分布のような釣鐘の形に近づいています。
+  元の分布（サイコロの目は一様）によらず、このことが成り立つというのが、\cref{sec:stat-asymptotics}で学ぶ中心極限定理です。
+  また、母集団分布が正規分布 $\Normal(\mu, \sigma^2)$ なら、$\bX$ は\textbf{ちょうど} $\Normal(\mu, \sigma^2/n)$ にしたがいます
+  （独立な正規分布の和は正規分布で、それを $1/n$ 倍しても正規分布だからです）。
+\end{supplement}
+
+\subsection{推定量と不偏性}
+
+母数を標本から推し量ることを\term{推定}{すいてい}{estimation}といいます。
+推定に使う統計量を\term{推定量}{すいていりょう}{estimator}、
+実際のデータから計算したその値を\term{推定値}{すいていち}{estimate}といいます。
+母数 $\theta$（シータ）の推定量を $\estim{\theta}$（シータハット）と書きます。
+
+母平均 $\mu$ の推定量としては、標本平均 $\bX$ が自然です。
+良い推定量とは何かを考えるための、基本的な基準を 1 つ定めます。
+
+\begin{definition}[不偏性][def:unbiased]
+  $\E[\estim{\theta}] = \theta$ が、母数 $\theta$ がどんな値であっても成り立つとき、
+  $\estim{\theta}$ を $\theta$ の\term{不偏推定量}{ふへんすいていりょう}{unbiased estimator}という。
+  また、$\E[\estim{\theta}] - \theta$ を\term{バイアス}{ばいあす}{bias}という。
+\end{definition}
+
+\begin{intuition}
+  不偏推定量は、1 回 1 回の推定値は真の値からずれても、何度もくり返せば\textbf{平均的には真の値に当たる}推定量です。
+  的当てにたとえると、矢は散らばっても、その中心が的の中心に一致している状態です。
+  バイアスは、矢の散らばりの中心と的の中心とのずれを表します。
+\end{intuition}
+
+\cref{thm:sample-mean} より $\E[\bX] = \mu$ なので、標本平均は母平均の不偏推定量です。
+では、母分散 $\sigma^2$ はどう推定すればよいでしょうか。
+データの分散（\cref{def:variance-data}）にならって、
+\[
+  S^2 = \frac{1}{n} \sum_{i=1}^{n} (X_i - \bX)^2
+\]
+を考えます。これを\term{標本分散}{ひょうほんぶんさん}{sample variance}といいます。
+ところが、標本分散は母分散を平均的に小さく見積もってしまいます。
+
+\begin{theorem}[標本分散の期待値][thm:sample-variance-bias]
+  $X_1, \dots, X_n$（$n \ge 2$）が独立で、どれも期待値 $\mu$、分散 $\sigma^2$ の同じ分布にしたがうとき、
+  \[
+    \E[S^2] = \frac{n-1}{n} \sigma^2.
+  \]
+\end{theorem}
+
+\begin{proof}
+  まず、次の等式を示します。
+  \begin{equation}
+    \sum_{i=1}^{n} (X_i - \bX)^2 = \sum_{i=1}^{n} (X_i - \mu)^2 - n(\bX - \mu)^2.
+    \label{eq:sum-of-squares-decomposition}
+  \end{equation}
+  $X_i - \bX = (X_i - \mu) - (\bX - \mu)$ と書いて 2 乗し、$i$ について足すと、
+  \[
+    \sum_{i=1}^{n} (X_i - \bX)^2 = \sum_{i=1}^{n} (X_i - \mu)^2 - 2(\bX - \mu) \sum_{i=1}^{n} (X_i - \mu) + n(\bX - \mu)^2
+  \]
+  です。$\sum_{i=1}^{n} (X_i - \mu) = n\bX - n\mu = n(\bX - \mu)$ なので、中央の項は $-2n(\bX - \mu)^2$ となり、\cref{eq:sum-of-squares-decomposition} が得られます。
+
+  次に、両辺の期待値をとります。分散の定義より $\E[(X_i - \mu)^2] = \V[X_i] = \sigma^2$、
+  \cref{thm:sample-mean} より $\E[(\bX - \mu)^2] = \V[\bX] = \sigma^2/n$ です。よって
+  \[
+    \E\left[\sum_{i=1}^{n} (X_i - \bX)^2\right] = n\sigma^2 - n \cdot \frac{\sigma^2}{n} = (n - 1)\sigma^2
+  \]
+  です。両辺を $n$ で割れば、示す式になります。
+\end{proof}
+
+この定理から、$n$ ではなく $n - 1$ で割れば、ちょうど $\sigma^2$ の不偏推定量になることが分かります。
+
+\begin{definition}[不偏分散][def:unbiased-variance]
+  標本 $X_1, \dots, X_n$ に対して
+  \[
+    U^2 = \frac{1}{n - 1} \sum_{i=1}^{n} (X_i - \bX)^2
+  \]
+  を\term{不偏分散}{ふへんぶんさん}{unbiased variance}という。
+  \cref{thm:sample-variance-bias} より $\E[U^2] = \sigma^2$ で、$U^2$ は $\sigma^2$ の不偏推定量である。
+\end{definition}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_unbiased.pdf}
+  \caption{$\Normal(0, 1)$ から大きさ $n$ の標本を 20 万回とり、$S^2$ と $U^2$ の平均を求めた結果。$U^2$ の平均は真の値 $\sigma^2 = 1$ に一致し、$S^2$ の平均は $(n-1)/n$ 倍に小さくなる}
+  \label{fig:prep-unbiased}
+\end{figure}
+
+\begin{intuition}
+  なぜ $n$ で割ると小さくなるのでしょうか。
+  \cref{eq:sum-of-squares-decomposition} を、$\mu$ を任意の数 $a$ に置きかえて同じように計算すると
+  \[
+    \sum_{i=1}^{n} (X_i - a)^2 = \sum_{i=1}^{n} (X_i - \bX)^2 + n(\bX - a)^2
+  \]
+  となります。右辺の第 2 項は $0$ 以上なので、$\sum (X_i - a)^2$ を最も小さくする $a$ は $\bX$ です。
+  つまり、$\bX$ は手元のデータに\textbf{いちばん近くなるように}選ばれた点です。
+  本当の中心 $\mu$ からのずれを測るべきところを、データにぴったり合わせた $\bX$ からのずれで測るので、ずれが小さめに出てしまうのです。
+  その小さくなる分が平均してちょうど $\sigma^2$ の「1 つ分」なので、$n$ 個ではなく $n - 1$ 個分で割れば、つじつまが合います。
+
+  別の見方もできます。偏差 $X_i - \bX$ は $n$ 個ありますが、その和はいつも $0$ です（\cref{prop:deviation-sum}）。
+  そのため、$n - 1$ 個の偏差が決まれば、残りの 1 個は自動的に決まります。
+  自由に動ける偏差は $n - 1$ 個しかないのです。
+  この $n - 1$ を\term{自由度}{じゆうど}{degrees of freedom}といいます。
+\end{intuition}
+
+\begin{merit}
+  不偏分散を使えば、母分散を平均的に正しく見積もれます。
+  $n$ が小さいときほど差は大きく、$n = 5$ なら標本分散は母分散を平均 20\% も小さく見積もってしまいます（\cref{fig:prep-unbiased}）。
+  後の章で学ぶ $t$ 検定や分散分析では、不偏分散を使うことが前提になっています。
+\end{merit}
+
+\begin{exampoint}
+  本によっては、$n - 1$ で割る $U^2$ のほうを「標本分散」と呼び、$s^2$ と書くこともあります。
+  問題文で「標本分散」「不偏分散」が出てきたら、$n$ と $n - 1$ のどちらで割っているかを必ず確かめましょう。
+  Python では、\texttt{np.var(x)} が $n$ で割り、\texttt{np.var(x, ddof=1)} が $n - 1$ で割ります。
+\end{exampoint}
+
+\subsection{仮説検定の流れ}
+
+データから「効果があった」「差がある」と判断するための手続きが仮説検定です。
+次の例で、流れを見ていきます。
+
+\begin{quote}
+  あるお菓子の工場では、1 袋の重さが平均 100 g、標準偏差 2 g の正規分布にしたがうように作っている。
+  ある日、製造の機械を調整した後に 16 袋を無作為に選んで量ったところ、平均は 101.2 g だった。
+  調整によって、平均の重さは変わったといえるか。
+\end{quote}
+
+平均が 100 g のままでも、たまたま重い袋が選ばれれば、標本平均は 100 g より大きくなります。
+101.2 g という結果が「たまたま」で説明できる程度のずれなのかを、確率を使って判断します。
+このような手続きを\term{仮説検定}{かせつけんてい}{hypothesis testing}、または単に検定といいます。
+
+\paragraph{手順 1：仮説を立てる}
+「変わっていない」という仮説と、「変わった」という仮説を立てます。
+\[
+  H_0 : \mu = 100, \qquad H_1 : \mu \ne 100.
+\]
+$H_0$ を\term{帰無仮説}{きむかせつ}{null hypothesis}、$H_1$ を\term{対立仮説}{たいりつかせつ}{alternative hypothesis}といいます。
+帰無仮説は、否定したい（「無に帰したい」）ほうの仮説で、ふつう「差がない」「効果がない」という形をしています。
+
+\paragraph{手順 2：有意水準を決める}
+「帰無仮説のもとでは、確率 $\alpha$ 以下でしか起こらないこと」が起きたら、帰無仮説を疑うことにします。
+この基準 $\alpha$ を\term{有意水準}{ゆういすいじゅん}{significance level}といい、$0.05$ や $0.01$ がよく使われます。
+有意水準は、\textbf{データを見る前に}決めておきます。ここでは $\alpha = 0.05$ とします。
+
+\paragraph{手順 3：検定統計量を決め、その分布を求める}
+判断に使う統計量を\term{検定統計量}{けんていとうけいりょう}{test statistic}といいます。
+帰無仮説 $H_0$ が正しいとすると、標本平均は $\bX \sim \Normal(100, 2^2/16)$ にしたがうので（\cref{thm:sample-mean} と〔補足〕「標本平均の分布の形」）、
+標準化した
+\[
+  Z = \frac{\bX - 100}{2/\sqrt{16}}
+\]
+は標準正規分布 $\Normal(0, 1)$ にしたがいます（\cref{cor:normal-standardize}）。これを検定統計量とします。
+
+\paragraph{手順 4：棄却域を決める}
+$H_0$ が正しければ、$Z$ が 0 から大きく離れた値になることはめったにありません。
+そこで、$H_0$ のもとで確率がちょうど $\alpha = 0.05$ になる「めったに起こらない範囲」を決めます。
+\cref{tab:prep-normal} より $Q(1.96) = 0.025$ なので、
+\[
+  R = \{\, \abs{Z} \ge 1.96 \,\}
+\]
+とすると、$\Prob(Z \in R) = 0.025 + 0.025 = 0.05$ です。
+この範囲を\term{棄却域}{ききゃくいき}{rejection region}、その境目の値 $1.96$ を\term{臨界値}{りんかいち}{critical value}といいます。
+
+\paragraph{手順 5：データから判断する}
+データから検定統計量の値を計算すると、
+\[
+  z = \frac{101.2 - 100}{2/4} = 2.4
+\]
+で、棄却域に入ります。
+「$H_0$ が正しいなら 5\% 以下でしか起こらないこと」が起きたので、$H_0$ は正しくないと判断します。
+これを「帰無仮説を\term{棄却}{ききゃく}{reject}する」といい、
+このとき結果は\term{有意}{ゆうい}{statistically significant}である（「有意水準 5\% で、平均の重さは変わったといえる」）といいます。
+もし $z$ が棄却域に入らなければ、「帰無仮説を棄却しない」（変わったとはいえない）と結論します。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_rejection.pdf}
+  \caption{両側検定の棄却域（色をつけた部分。面積の合計 $0.05$）と、観測値 $z = 2.4$。濃い部分の面積の合計が p 値}
+  \label{fig:prep-rejection}
+\end{figure}
+
+\subsubsection*{p 値}
+
+棄却域の代わりに、確率で判断することもできます。
+
+\begin{definition}[p 値][def:p-value]
+  帰無仮説が正しいとしたときに、検定統計量が、実際に観測された値と同じかそれ以上に極端な値をとる確率を
+  \term{p 値}{ぴーち}{p-value}という。
+  p 値が有意水準 $\alpha$ 以下のとき、帰無仮説を棄却する。
+\end{definition}
+
+お菓子の例では、$z = 2.4$ より極端な値とは $\abs{Z} \ge 2.4$ のことなので、
+表より $Q(2.4) = 0.0082$ を使って
+\[
+  \text{p 値} = \Prob(\abs{Z} \ge 2.4) = 2 \times 0.0082 = 0.0164
+\]
+です（\cref{fig:prep-rejection} の濃い部分）。$0.0164 \le 0.05$ なので、帰無仮説を棄却します。
+「$z$ が棄却域に入る」ことと「p 値 $\le \alpha$」は、同じ判断になります。
+
+\begin{intuition}
+  仮説検定の考え方は、数学の\textbf{背理法}に似ています。
+  まず「変わっていない（$H_0$）」と仮定します。その仮定のもとでは、今回のようなデータが得られる確率（p 値）は 1.6\% しかありません。
+  「めったに起こらないことが起きた」と考えるより、「最初の仮定がまちがっていた」と考えるほうが自然なので、$H_0$ を捨てるのです。
+  ただし背理法とちがい、確率が小さいだけで $0$ ではないので、この判断がまちがっている可能性は残ります。
+\end{intuition}
+
+\begin{merit}
+  「差があるように見える」という感覚ではなく、
+  「偶然でこれほどの差が出る確率は 1.6\%」という、だれが計算しても同じになる基準で判断できます。
+  p 値を示せば、読む人が自分の基準（たとえば $\alpha = 0.01$）で判断し直すこともできます。
+\end{merit}
+
+\begin{exampoint}
+  \begin{itemize}
+    \item 帰無仮説を棄却できなかったときの結論は「$H_0$ が正しい」ではなく、「$H_1$ が正しいとはいえない」です。
+      データが少なくて差を見つけられなかっただけかもしれないからです。
+    \item p 値は「帰無仮説が正しい確率」ではありません。
+      「帰無仮説が正しいと仮定したときに、今回のような（またはもっと極端な）データが出る確率」です。
+      \cref{ex:bayes-test} と同じく、$\Prob(A \mid B)$ と $\Prob(B \mid A)$ を取りちがえないようにしましょう。
+  \end{itemize}
+\end{exampoint}
+
+\begin{supplement}[母分散が分からないとき]
+  この例では、母集団の標準偏差 $\sigma = 2$ が分かっているとしました。
+  現実には $\sigma$ も分からないことがほとんどで、その場合は $\sigma$ を不偏分散の平方根 $U$ で置きかえた統計量を使います。
+  この統計量は正規分布ではなく $t$ 分布にしたがいます。くわしくは\cref{chap:stat-inference}で学びます。
+\end{supplement}
+
+\subsection{第 1 種の過誤・第 2 種の過誤、検出力}
+
+仮説検定の判断は、確率にもとづくので、まちがえることがあります。
+まちがい方には 2 種類あります。
+
+\begin{center}
+  \begin{tabular}{l|cc}
+    \toprule
+    & $H_0$ を棄却しない & $H_0$ を棄却する \\
+    \midrule
+    $H_0$ が正しい & 正しい判断 & \textbf{第 1 種の過誤}（確率 $\alpha$） \\
+    $H_1$ が正しい & \textbf{第 2 種の過誤}（確率 $\beta$） & 正しい判断（確率 $1 - \beta$） \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{definition}[第 1 種・第 2 種の過誤と検出力][def:errors-power]
+  \begin{itemize}
+    \item 帰無仮説が正しいのに、棄却してしまう誤りを\term{第1種の過誤}{だい1しゅのかご}{type I error}という。その確率は有意水準 $\alpha$ である。
+    \item 対立仮説が正しいのに、帰無仮説を棄却しない誤りを\term{第2種の過誤}{だい2しゅのかご}{type II error}という。その確率を $\beta$ で表す。
+    \item 対立仮説が正しいときに、正しく帰無仮説を棄却する確率 $1 - \beta$ を\term{検出力}{けんしゅつりょく}{power}という。
+  \end{itemize}
+\end{definition}
+
+第 1 種の過誤は「差がないのに、あると言ってしまう」あわて者の誤り、
+第 2 種の過誤は「差があるのに、見逃してしまう」ぼんやり者の誤りです。
+
+\begin{example}[検出力の計算][ex:power]
+  お菓子の例で、本当は平均が $\mu = 101$ g に変わっていたとします。この検定で、変化に気づける確率（検出力）を求めます。
+  棄却域 $\abs{Z} \ge 1.96$ を標本平均に直すと、標準誤差が $2/\sqrt{16} = 0.5$ なので
+  \[
+    \bX \ge 100 + 1.96 \times 0.5 = 100.98 \quad \text{または} \quad \bX \le 100 - 1.96 \times 0.5 = 99.02
+  \]
+  です。本当は $\mu = 101$ なので、$\bX \sim \Normal(101, 0.5^2)$ です。よって、
+  \[
+    \Prob(\bX \ge 100.98) = \Prob\left(Z \ge \frac{100.98 - 101}{0.5}\right) = \Prob(Z \ge -0.04) = 1 - Q(0.04) = 1 - 0.4840 = 0.5160
+  \]
+  です。$\bX \le 99.02$ となる確率は $\Prob(Z \le -3.96)$ で、ほぼ $0$ です。
+  したがって、検出力は約 $0.52$、第 2 種の過誤の確率は $\beta \approx 0.48$ です。
+  1 g の変化があっても、16 袋の検査では半分近くの確率で見逃してしまいます（\cref{fig:prep-power}）。
+\end{example}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_power.pdf}
+  \caption{お菓子の例での第 1 種の過誤、第 2 種の過誤と検出力。破線より外側が棄却域}
+  \label{fig:prep-power}
+\end{figure}
+
+\begin{intuition}
+  \cref{fig:prep-power} で、棄却域の境目（破線）を外側に動かすと、$\alpha$（赤い部分）は小さくなりますが、$\beta$（斜線の部分）は大きくなります。
+  標本の大きさ $n$ を変えずに、両方を同時に小さくすることはできません。
+  そこで、まず $\alpha$ を $0.05$ などに決め、その中で $\beta$ をできるだけ小さくする、というのが検定の考え方です。
+\end{intuition}
+
+\begin{merit}
+  検出力を計算すると、「どれくらいの差を、どれくらいの確率で見つけたいか」から、必要な標本の大きさを決められます。
+  たとえば、お菓子の例で 64 袋を量ることにすると、標準誤差は $2/\sqrt{64} = 0.25$、棄却域の境目は $100 + 1.96 \times 0.25 = 100.49$ になり、
+  \[
+    \text{検出力} \approx \Prob\left(Z \ge \frac{100.49 - 101}{0.25}\right) = 1 - Q(2.04) = 1 - 0.0207 \approx 0.98
+  \]
+  まで上がります。
+  データが足りずに「差があるとはいえない」で終わってしまう実験を、事前に防げます。
+\end{merit}
+
+\subsection{片側検定と両側検定}
+
+お菓子の例では、平均が増えても減っても「変わった」と判断できるように、棄却域を両側にとりました。
+このように、対立仮説が $H_1 : \mu \ne \mu_0$ の検定を\term{両側検定}{りょうがわけんてい}{two-sided test}といいます。
+
+一方、「新しい肥料で収穫量が\textbf{増えた}か」のように、一方向の変化だけに関心があることもあります。
+このときは、対立仮説を $H_1 : \mu > \mu_0$（または $H_1 : \mu < \mu_0$）とし、棄却域を片側だけにとります。
+これを\term{片側検定}{かたがわけんてい}{one-sided test}といいます。
+有意水準 $\alpha = 0.05$ の片側検定（$H_1 : \mu > \mu_0$）の棄却域は、$Q(1.645) = 0.05$ より $Z \ge 1.645$ です（\cref{fig:prep-one-two-sided}）。
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{prep_one_two_sided.pdf}
+  \caption{有意水準 $0.05$ の両側検定と片側検定の棄却域}
+  \label{fig:prep-one-two-sided}
+\end{figure}
+
+\begin{center}
+  \begin{tabular}{lccc}
+    \toprule
+    & 対立仮説 & 棄却域（$\alpha = 0.05$） & p 値 \\
+    \midrule
+    両側検定 & $\mu \ne \mu_0$ & $\abs{Z} \ge 1.96$ & $\Prob(\abs{Z} \ge \abs{z}) = 2Q(\abs{z})$ \\
+    片側検定 & $\mu > \mu_0$ & $Z \ge 1.645$ & $\Prob(Z \ge z) = Q(z)$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{intuition}
+  片側検定では、有意水準の 5\% をすべて関心のある側に集めるので、臨界値が $1.96$ から $1.645$ に下がります。
+  その方向の変化は見つけやすくなりますが、逆の方向の変化は、どんなに大きくても見つけられません。
+\end{intuition}
+
+\begin{exampoint}
+  片側検定にするか両側検定にするかは、\textbf{データを見る前に}、調べたいことに合わせて決めます。
+  データを見てから、有意になりやすいほうを選ぶのは反則です。
+  また、同じデータなら、片側検定の p 値は両側検定の p 値の半分になります。
+\end{exampoint}
+
+\begin{problem}[片側検定と両側検定で結論が変わる例][prob:one-two-sided]
+  ある検定で、検定統計量（帰無仮説のもとで $\Normal(0, 1)$ にしたがう）の値が $z = 1.8$ だった。
+  有意水準 $0.05$ の両側検定と、片側検定（$H_1 : \mu > \mu_0$）のそれぞれで、p 値を求めて結論を述べなさい。
+  \tcblower
+  表より $Q(1.8) = 0.0359$ です。
+  両側検定の p 値は $2 \times 0.0359 = 0.0718 > 0.05$ なので、帰無仮説は棄却されません。
+  片側検定の p 値は $0.0359 \le 0.05$ なので、帰無仮説は棄却されます。
+  臨界値で考えても、$1.8 < 1.96$、$1.8 \ge 1.645$ で同じ結論になります。
+\end{problem}
+
+最後に、お菓子の例の検定と検出力を Python で計算しておきます。
+
+\begin{pycode}[平均の検定と検出力]
+import numpy as np
+from scipy import stats
+
+mu0, sigma, n = 100, 2, 16
+xbar = 101.2
+se = sigma / np.sqrt(n)             # 標本平均の標準偏差（標準誤差）
+z = (xbar - mu0) / se               # 検定統計量
+p = 2 * stats.norm.sf(abs(z))       # 両側検定の p 値
+print(z, p)
+
+# 本当の平均が 101 のときの検出力
+c = stats.norm.ppf(0.975)           # 1.959...
+power = (stats.norm.sf(mu0 + c * se, loc=101, scale=se)
+         + stats.norm.cdf(mu0 - c * se, loc=101, scale=se))
+print(power)
+\end{pycode}
+
+\begin{pyoutput}
+2.4000000000000057 0.016395071849191995
+0.5160052739761751
+\end{pyoutput}
+
+$z$ の値が $2.4$ ちょうどにならないのは、コンピュータが小数を 2 進数で近似して計算するためで、気にする必要はありません。
 
 \begin{chaptersummary}
-  % TODO: この章のまとめ
+  \begin{itemize}
+    \item データの中心は平均・中央値、ばらつきは分散・標準偏差・四分位範囲で表す。2 つの量の直線的な関係は相関係数（$-1 \le r \le 1$）で測る。
+    \item 条件付き確率は $\Prob(A \mid B) = \Prob(A \cap B)/\Prob(B)$。ベイズの定理で「結果 → 原因」の確率を求められる。
+    \item 期待値は線形：$\E[aX + bY] = a\E[X] + b\E[Y]$。分散は $\V[aX + b] = a^2\V[X]$、独立なら $\V[X \pm Y] = \V[X] + \V[Y]$。
+    \item 主な分布の期待値と分散：
+      \begin{center}
+        \small
+        \begin{tabular}{lcc|lcc}
+          \toprule
+          分布 & 期待値 & 分散 & 分布 & 期待値 & 分散 \\
+          \midrule
+          $\Bern(p)$ & $p$ & $p(1-p)$ & $\Unif(a, b)$ & $\frac{a+b}{2}$ & $\frac{(b-a)^2}{12}$ \\[1mm]
+          $\Bin(n, p)$ & $np$ & $np(1-p)$ & $\Ex(\lambda)$ & $\frac{1}{\lambda}$ & $\frac{1}{\lambda^2}$ \\[1mm]
+          $\Po(\lambda)$ & $\lambda$ & $\lambda$ & $\Normal(\mu, \sigma^2)$ & $\mu$ & $\sigma^2$ \\[1mm]
+          $\Geo(p)$ & $\frac{1}{p}$ & $\frac{1-p}{p^2}$ & & & \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+    \item 正規分布は標準化 $Z = (X - \mu)/\sigma$ で $\Normal(0, 1)$ になり、標準正規分布表で確率が求まる。
+    \item 標本平均は $\E[\bX] = \mu$、$\V[\bX] = \sigma^2/n$。標準誤差 $\sigma/\sqrt{n}$ は、データを 4 倍にすると半分になる。
+    \item $n$ で割る標本分散は母分散を小さく見積もる。$n - 1$ で割る不偏分散は $\E[U^2] = \sigma^2$ を満たす。
+    \item 仮説検定は、帰無仮説のもとで「めったに起こらない」データが得られたら帰無仮説を棄却する。p 値 $\le \alpha$ なら棄却。第 1 種の過誤の確率は $\alpha$、検出力は $1 - \beta$。
+  \end{itemize}
 \end{chaptersummary}
