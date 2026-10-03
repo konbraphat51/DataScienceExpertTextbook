@@ -1,0 +1,158 @@
+% =====================================================================
+%  sample.tex : レイアウト見本（すべての環境を一度ずつ使う）
+%  スタイルを変えたら、これをビルドして見た目を確かめる：
+%    cd tex && latexmk sample.tex
+% =====================================================================
+\input{preamble}
+
+\begin{document}
+
+\part{統計基礎}
+
+\chapter{確率と確率分布}
+\label{chap:sample}
+
+\begin{chaptergoal}
+  \begin{itemize}
+    \item 積率母関数の定義と使い方を説明できる。
+    \item チェビシェフの不等式を導き、その意味を言葉で説明できる。
+  \end{itemize}
+\end{chaptergoal}
+
+\section{確率分布、確率変数}
+\label{sec:sample-moments}
+
+\keywords{チェビシェフの不等式、積率、尖度、歪度、積率母関数}
+
+\subsection{積率母関数}
+
+確率変数の性質を調べるとき、期待値 $\E[X]$ や分散 $\V[X]$ を1つずつ計算するのは手間がかかります。
+そこで、すべての積率をまとめて持っている関数を考えます。
+
+\begin{definition}[積率母関数][def:mgf]
+  確率変数 $X$ に対して、
+  \begin{equation}
+    M_X(t) = \E\left[e^{tX}\right]
+    \label{eq:mgf}
+  \end{equation}
+  を $X$ の\term{積率母関数}{せきりつぼかんすう}といいます。
+\end{definition}
+
+\begin{intuition}
+  $e^{tX}$ を展開すると $1 + tX + \frac{t^2}{2!}X^2 + \cdots$ となります。
+  つまり $M_X(t)$ は、$\E[X], \E[X^2], \dots$ を「係数として1列に並べて保存した入れ物」です。
+\end{intuition}
+
+\begin{theorem}[積率母関数から積率を取り出す][thm:mgf-moment]
+  $M_X(t)$ を $k$ 回微分して $t=0$ を代入すると、$k$ 次の積率が得られる：
+  \[
+    M_X^{(k)}(0) = \E[X^k].
+  \]
+\end{theorem}
+
+\begin{proof}
+  \cref{eq:mgf} の両辺を $t$ で $k$ 回微分すると $M_X^{(k)}(t) = \E[X^k e^{tX}]$ です。
+  ここで $t=0$ とおけば $e^{0}=1$ なので、$M_X^{(k)}(0)=\E[X^k]$ となります。
+\end{proof}
+
+\begin{merit}
+  積分（または和）の計算を1回すませれば、あとは\textbf{微分するだけで}平均も分散も求まります。
+  微分は積分よりずっと楽な計算です。
+\end{merit}
+
+\begin{mathnote}[$e^x$ のテイラー展開]
+  $e^x = 1 + x + \dfrac{x^2}{2!} + \dfrac{x^3}{3!} + \cdots$ が成り立ちます。
+  くわしくは数学基礎「1変数関数の微分法」を参照してください。
+\end{mathnote}
+
+\begin{example}[ポアソン分布の積率母関数][ex:poisson-mgf]
+  $X \sim \Po(\lambda)$ のとき、
+  \[
+    M_X(t) = \sum_{x=0}^{\infty} e^{tx}\,\frac{\lambda^x e^{-\lambda}}{x!}
+           = e^{-\lambda}\sum_{x=0}^{\infty}\frac{(\lambda e^t)^x}{x!}
+           = \exp\bigl(\lambda(e^t-1)\bigr).
+  \]
+\end{example}
+
+\begin{problem}[ポアソン分布の平均]
+  \cref{ex:poisson-mgf} の結果を使って、$\E[X]$ を求めなさい。
+  \tcblower
+  $M_X'(t) = \lambda e^t \exp\bigl(\lambda(e^t-1)\bigr)$ なので、
+  \cref{thm:mgf-moment} より $\E[X] = M_X'(0) = \lambda$ です。
+\end{problem}
+
+\begin{supplement}[確率変数の変換]
+  $Y=g(X)$ の確率密度関数は、$g$ が単調なら $f_Y(y) = f_X\bigl(g^{-1}(y)\bigr)\abs*{\diff{}{y}g^{-1}(y)}$ で求まります。
+\end{supplement}
+
+\begin{reference}[ジャックナイフ法]
+  データを1つずつ除いて推定をくり返す方法です。名前だけ知っておけば十分です。
+\end{reference}
+
+\begin{exampoint}
+  「歪度は3次、尖度は4次の標準化積率」という対応は、そのまま問われます。
+\end{exampoint}
+
+\subsection{図とコード}
+
+\Cref{fig:sample-pgf} は TikZ（pgfplots）で、\cref{fig:sample-py} は Python で描いた図です。
+
+\begin{figure}[tb]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[width=0.7\linewidth, height=4.5cm, axis lines=left,
+                 xlabel={$x$}, ylabel={$f(x)$}, ymin=0, samples=100, domain=-4:4]
+      \addplot[thick, tbMain] {exp(-x^2/2)/sqrt(2*pi)};
+      \addplot[thick, tbTheorem, dashed] {exp(-abs(x))/2};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{標準正規分布（実線）とラプラス分布（破線）}
+  \label{fig:sample-pgf}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics{sample_normal.pdf}
+  \caption{Python（matplotlib）で描いた図の例}
+  \label{fig:sample-py}
+\end{figure}
+
+\begin{pycode}[正規乱数の平均]
+import numpy as np
+
+rng = np.random.default_rng(seed=0)  # シードを固定して再現できるようにする
+x = rng.normal(loc=0.0, scale=1.0, size=1000)
+print(x.mean())
+\end{pycode}
+
+\begin{pyoutput}
+0.04440216000254035
+\end{pyoutput}
+
+\begin{table}[tb]
+  \centering
+  \caption{表の例}
+  \label{tab:sample}
+  \begin{tabular}{lcc}
+    \toprule
+    分布 & 期待値 & 分散 \\
+    \midrule
+    $\Bin(n,p)$ & $np$ & $np(1-p)$ \\
+    $\Po(\lambda)$ & $\lambda$ & $\lambda$ \\
+    $\Normal(\mu,\sigma^2)$ & $\mu$ & $\sigma^2$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:sample} のように、表は \texttt{booktabs} の罫線で書きます。
+参照の見本：\cref{chap:sample}、\cref{sec:sample-moments}、\cref{def:mgf}、\cref{thm:mgf-moment}。
+
+\begin{chaptersummary}
+  \begin{itemize}
+    \item 積率母関数 $M_X(t)=\E[e^{tX}]$ を微分すると積率が得られる。
+  \end{itemize}
+\end{chaptersummary}
+
+\printindex
+
+\end{document}
